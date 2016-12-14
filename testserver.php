@@ -5,19 +5,21 @@ use Omnipay\Omnipay;
 require_once __DIR__ . '/vendor/autoload.php';
 
 
-$gateway = Omnipay::create('Slsp');
+$gateway = Omnipay::create('SporoPay');
 
-$gateway->setMid('11111111');
-$gateway->setSharedSecret('1111111111111111111111111111111111111111111111111111111111111111');
+$gateway->setSharedSecret('111111111111111111111111');
 
 $gateway->setTestMode(true);
 
 $response = $gateway->completePurchase([
-	'amount' => '10.00',
-	'currency' => 'EUR',
-	'VS' => '123456',
-	'CS' => '0321',
-	'rurl' => 'http://localhost:4444/testserver.php',
+	'amount' => '5.80',
+    'VS' => '9960012037',
+    'CS' => '0321',
+    'ss' => '0000002313',
+    'rurl' => 'http://localhost:4444/testserver.php',
+    'account_number_prefix' => '000000',
+    'account_number' => '0013662162',
+    'param' => 'abc=defgh',
 ])->send();
 
 

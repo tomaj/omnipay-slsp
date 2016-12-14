@@ -42,7 +42,6 @@ class PurchaseRequest extends AbstractRequest
     public function sendData($data)
     {
         $input = "{$this->getAccountNumberPrefix()};{$this->getAccountNumber()};{$data['pu_kbanky']};{$this->getAmount()};{$data['mena']};{$this->getVs()};{$this->getSs()};{$this->getRurl()};{$this->getParam()}";
-        var_dump($input);
         $data['sign1'] = $this->generateSignature($input);
         return $this->response = new PurchaseResponse($this, $data);
     }
@@ -50,7 +49,8 @@ class PurchaseRequest extends AbstractRequest
     public function getEndpoint()
     {
         if ($this->getTestmode()) {
-            return 'https://platby.tomaj.sk/payment/slsp-3des';
+            // return 'https://platby.tomaj.sk/payment/slsp-3des';
+            return 'http://epaymentsimulator.monogram.sk/SLSP_SporoPay.aspx';
         } else {
             return 'https://ib.slsp.sk/epayment/epayment/epayment.xml';
         }
