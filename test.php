@@ -6,8 +6,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 $gateway = Omnipay::create('SporoPay');
 
-
-$gateway->setSharedSecret('111111111111111111111111');
+$gateway->setSharedSecret('Z3qY08EpvLlAAoMZdnyUdQ==');
 $gateway->setTestMode(true);
 
 $response = $gateway->purchase([

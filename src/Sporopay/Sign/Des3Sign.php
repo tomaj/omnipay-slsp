@@ -4,14 +4,14 @@ namespace Omnipay\SporoPay\Sign;
 
 class Des3Sign
 {
-	public function sign($input, $secret)
-	{
-		$signature = null;
+    public function sign($input, $secret)
+    {
+        $signature = null;
         
         $bytesHash = sha1($input, true);
 
         while (strlen($bytesHash) < 24) {
-        	$bytesHash .= chr(0xFF);
+            $bytesHash .= chr(0xFF);
         }
 
         $ssBytes = base64_decode($secret);
@@ -26,5 +26,5 @@ class Des3Sign
         $signature = base64_encode($signatureBytes);
         
         return $signature;
-	}
+    }
 }

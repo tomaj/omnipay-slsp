@@ -49,8 +49,7 @@ class PurchaseRequest extends AbstractRequest
     public function getEndpoint()
     {
         if ($this->getTestmode()) {
-            // return 'https://platby.tomaj.sk/payment/slsp-3des';
-            return 'http://epaymentsimulator.monogram.sk/SLSP_SporoPay.aspx';
+            return 'https://platby.tomaj.sk/payment/slsp3des';
         } else {
             return 'https://ib.slsp.sk/epayment/epayment/epayment.xml';
         }
