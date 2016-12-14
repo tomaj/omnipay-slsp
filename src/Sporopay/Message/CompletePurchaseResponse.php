@@ -1,6 +1,6 @@
 <?php
 
-namespace Omnipay\Slsp\Message;
+namespace Omnipay\SporoPay\Message;
 
 use Omnipay\Common\Message\AbstractResponse;
 

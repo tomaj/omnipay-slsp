@@ -1,10 +1,10 @@
 <?php
 
-namespace Omnipay\Slsp\Message;
+namespace Omnipay\SporoPay\Message;
 
 use Omnipay\Common\Exception\InvalidRequestException;
 use Omnipay\Common\Message\AbstractRequest;
-use Omnipay\Slsp\Sign\HmacSign;
+use Omnipay\SporoPay\Sign\HmacSign;
 
 class CompletePurchaseRequest extends AbstractRequest
 {

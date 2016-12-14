@@ -1,6 +1,6 @@
 <?php
 
-namespace Omnipay\Slsp;
+namespace Omnipay\SporoPay;
 
 use Omnipay\Common\AbstractGateway;
 
@@ -8,7 +8,7 @@ class Gateway extends AbstractGateway
 {
     public function getName()
     {
-        return 'Slsp Gateway';
+        return 'SporoPay SLSP Gateway';
     }
 
     public function getDefaultParameters()
@@ -30,11 +30,11 @@ class Gateway extends AbstractGateway
 
     public function purchase(array $parameters = array())
     {
-        return $this->createRequest('\Omnipay\Slsp\Message\PurchaseRequest', $parameters);
+        return $this->createRequest('\Omnipay\SporoPay\Message\PurchaseRequest', $parameters);
     }
 
     public function completePurchase(array $parameters = array())
     {
-        return $this->createRequest('\Omnipay\Slsp\Message\CompletePurchaseRequest', $parameters);
+        return $this->createRequest('\Omnipay\SporoPay\Message\CompletePurchaseRequest', $parameters);
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Omnipay\Slsp\Message;
+namespace Omnipay\SporoPay\Message;
 
 use Omnipay\Common\Currency;
-use Omnipay\Slsp\Sign\Des3Sign;
+use Omnipay\Sporopay\Sign\Des3Sign;
 use Omnipay\Common\Message\AbstractRequest;
 
 class PurchaseRequest extends AbstractRequest
@@ -17,7 +17,7 @@ class PurchaseRequest extends AbstractRequest
 
     public function getData()
     {
-        $this->validate('pu_predcislo', 'pu_cislo', 'vs', 'ss', 'rurl');
+        $this->validate('pu_predcislo', 'pu_cislo', 'vs', 'ss', 'rurl', 'param');
         $data = [];
         
         $data['pu_predcislo'] = $this->getAccountNumberPrefix();
@@ -41,7 +41,8 @@ class PurchaseRequest extends AbstractRequest
 
     public function sendData($data)
     {
-        $input = "{$this->getAccountNumberPrefix()};{$this->getAccountNumberPrefix()};{$data['pu_kbanky']};{$this->getAmount()};{$data['mena']};{$this->getVs()};{$this->getSs()};{$this->getRurl()};{$this->getParam()}";
+        $input = "{$this->getAccountNumberPrefix()};{$this->getAccountNumber()};{$data['pu_kbanky']};{$this->getAmount()};{$data['mena']};{$this->getVs()};{$this->getSs()};{$this->getRurl()};{$this->getParam()}";
+        var_dump($input);
         $data['sign1'] = $this->generateSignature($input);
         return $this->response = new PurchaseResponse($this, $data);
     }
@@ -51,7 +52,6 @@ class PurchaseRequest extends AbstractRequest
         if ($this->getTestmode()) {
             return 'https://platby.tomaj.sk/payment/slsp-3des';
         } else {
-            // return 'https://nib.vub.sk/epay/merchant'; // vub test server
             return 'https://ib.slsp.sk/epayment/epayment/epayment.xml';
         }
     }
