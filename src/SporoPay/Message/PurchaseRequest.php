@@ -4,7 +4,7 @@
 namespace Omnipay\SporoPay\Message;
 
 use Omnipay\Common\Currency;
-use Omnipay\Sporopay\Sign\Des3Sign;
+use Omnipay\SporoPay\Sign\Des3Sign;
 use Omnipay\Common\Message\AbstractRequest;
 
 class PurchaseRequest extends AbstractRequest
