@@ -10,11 +10,11 @@ $gateway->setSharedSecret('Z3qY08EpvLlAAoMZdnyUdQ==');
 $gateway->setTestMode(true);
 
 $response = $gateway->purchase([
-	'amount' => '5.80',
-	'VS' => '9960012037',
-	'CS' => '0321',
+    'amount' => '5.80',
+    'VS' => '9960012037',
+    'CS' => '0321',
     'ss' => '0000002313',
-	'rurl' => 'http://localhost:4444/testserver.php',
+    'rurl' => 'http://localhost:4444/testserver.php',
     'account_number_prefix' => '000000',
     'account_number' => '0013662162',
     'param' => 'abc=defgh',
@@ -37,5 +37,3 @@ if ($response->isSuccessful()) {
     // Payment failed
     echo $response->getMessage();
 }
-
-
