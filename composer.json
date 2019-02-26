@@ -1,5 +1,5 @@
 {
-    "name": "iki-cz/omnipay-slsp",
+    "name": "tomaj/omnipay-slsp",
     "type": "library",
     "description": "SLSP driver for the Omnipay payment processing library",
     "keywords": [
