@@ -20,8 +20,8 @@ class PurchaseRequest extends AbstractRequest
         $this->validate('pu_predcislo', 'pu_cislo', 'vs', 'ss', 'rurl', 'param');
         $data = [];
         
-        $data['pu_predcislo'] = $this->getAccountNumberPrefix();
-        $data['pu_cislo'] = $this->getAccountNumber();
+        $data['pu_predcislo'] = str_pad($this->getAccountNumberPrefix(), 6, STR_PAD_LEFT);
+        $data['pu_cislo'] = str_pad($this->getAccountNumber(), 10, STR_PAD_LEFT);
         $data['pu_kbanky'] = '0900';
         $data['suma'] = $this->getAmount();
         $data['mena'] = 'EUR';
