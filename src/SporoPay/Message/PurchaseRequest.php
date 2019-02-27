@@ -25,8 +25,8 @@ class PurchaseRequest extends AbstractRequest
         $data['pu_kbanky'] = '0900';
         $data['suma'] = $this->getAmount();
         $data['mena'] = 'EUR';
-        $data['vs'] = str_pad($this->getVs(), 10, '0');
-        $data['ss'] = str_pad($this->getSs(), 10, '0');
+        $data['vs'] = str_pad($this->getVs(), 10, '0', STR_PAD_LEFT);
+        $data['ss'] = str_pad($this->getSs(), 10, '0', STR_PAD_LEFT);
         $data['url'] = $this->getRurl();
         $data['param'] = $this->getParam();
 
