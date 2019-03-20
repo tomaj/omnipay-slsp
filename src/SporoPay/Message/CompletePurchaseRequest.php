@@ -12,10 +12,20 @@ class CompletePurchaseRequest extends AbstractRequest
     {
         $sharedSecret = $this->getParameter('sharedSecret');
 
-        $data = "{$_GET['u_predcislo']};{$_GET['u_cislo']};{$_GET['u_kbanky']};{$_GET['pu_predcislo']};{$_GET['pu_cislo']};{$_GET['pu_kbanky']};{$_GET['suma']};{$_GET['mena']};{$_GET['vs']};{$_GET['ss']};{$_GET['url']};{$_GET['param']};{$_GET['result']};{$_GET['real']}";
+        $data = [];
+        $getParams = ['u_predcislo', 'u_cislo', 'u_kbanky', 'pu_predcislo', 'pu_cislo', 'pu_kbanky', 'suma', 'mena', 'vs', 'ss', 'url', 'param', 'result', 'real'];
+        foreach ($getParams as $getParam){
+            if(!isset($_GET[$getParam])){
+                throw new InvalidRequestException(sprintf('one of the input parameters is missing: %1$s', $getParam));
+            }
+
+            $data[$getParam] = $_GET[$getParam];
+        }
+
+        $dataString = implode(';', $data);
         $sign = new Des3Sign();
 
-        if ($sign->sign($data, $sharedSecret) != $_GET['SIGN2']) {
+        if ($sign->sign($dataString, $sharedSecret) != $_GET['SIGN2']) {
             throw new InvalidRequestException('incorect signature');
         }
 
