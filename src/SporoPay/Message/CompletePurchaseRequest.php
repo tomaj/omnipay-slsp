@@ -25,6 +25,10 @@ class CompletePurchaseRequest extends AbstractRequest
         $dataString = implode(';', $data);
         $sign = new Des3Sign();
 
+        if(!isset($_GET['SIGN2'])){
+            throw new InvalidRequestException(sprintf('missing input parameter: SIGN2', $getParam));
+        }
+        
         if ($sign->sign($dataString, $sharedSecret) != $_GET['SIGN2']) {
             throw new InvalidRequestException('incorect signature');
         }
