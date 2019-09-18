@@ -13,7 +13,7 @@ class CompletePurchaseRequest extends AbstractRequest
         $sharedSecret = $this->getParameter('sharedSecret');
 
         $data = [];
-        $getParams = ['u_predcislo', 'u_cislo', 'u_kbanky', 'pu_predcislo', 'pu_cislo', 'pu_kbanky', 'suma', 'mena', 'vs', 'ss', 'url', 'param', 'result', 'real'];
+        $getParams = ['u_predcislo', 'u_cislo', 'u_kbanky', 'pu_predcislo', 'pu_cislo', 'pu_kbanky', 'suma', 'mena', 'vs', 'ss', 'url', /*'param',*/ 'result', 'real'];
         foreach ($getParams as $getParam){
             if(!isset($_GET[$getParam])){
                 throw new InvalidRequestException(sprintf('one of the input parameters is missing: %1$s', $getParam));
@@ -28,9 +28,17 @@ class CompletePurchaseRequest extends AbstractRequest
         if(!isset($_GET['SIGN2'])){
             throw new InvalidRequestException(sprintf('missing input parameter: SIGN2', $getParam));
         }
-        
+
         if ($sign->sign($dataString, $sharedSecret) != $_GET['SIGN2']) {
-            throw new InvalidRequestException('incorect signature');
+            // Ještě to zkusím s prázdným parametrem 'param', který dřív posílali - ale musím ho vložit na správnou pozici - před 'result'.
+            // Implode se dělá jen z hodnot, takže je vlastně jedno, jak pojmenuju ten vložený parametr. Ale nechám tam param, když tam dřív býval ...
+            $pos = array_search('result', array_keys($data));
+            $data2 = array_slice($data, 0, $pos, true) +  array('param' => '') +  array_slice($data, $pos, count($data)-$pos, true);
+            $dataString2 = implode(';', $data2);
+
+            if ($sign->sign($dataString2, $sharedSecret) != $_GET['SIGN2']) {
+                throw new InvalidRequestException('incorect signature');
+            }
         }
 
         return [
