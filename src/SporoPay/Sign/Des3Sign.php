@@ -7,7 +7,7 @@ class Des3Sign
     public function sign($input, $secret)
     {
         $signature = null;
-        
+
         $bytesHash = sha1($input, true);
 
         while (strlen($bytesHash) < 24) {
@@ -22,9 +22,9 @@ class Des3Sign
         $iv .= $iv; // 4
         $iv .= $iv; // 8
 
-        $signatureBytes = mcrypt_encrypt(MCRYPT_TRIPLEDES, $key, $bytesHash, MCRYPT_MODE_CBC, $iv);
+        $signatureBytes = @openssl_encrypt($bytesHash, "DES-EDE3-CBC", $key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING, $iv);
         $signature = base64_encode($signatureBytes);
-        
+
         return $signature;
     }
 }
