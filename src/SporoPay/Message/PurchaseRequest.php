@@ -49,7 +49,8 @@ class PurchaseRequest extends AbstractRequest
     public function getEndpoint()
     {
         if ($this->getTestmode()) {
-            return 'https://platby.tomaj.sk/payment/sporopay-des';
+            $host = $this->getParameter('testHost') ?: 'https://platby.tomaj.sk';
+            return $host . '/payment/sporopay-des';
         } else {
             return 'https://ib.slsp.sk/epayment/epayment/epayment.xml';
         }
@@ -63,6 +64,16 @@ class PurchaseRequest extends AbstractRequest
     public function setSharedSecret($value)
     {
         return $this->setParameter('sharedSecret', $value);
+    }
+
+    public function getTestHost()
+    {
+        return $this->getParameter('testHost');
+    }
+
+    public function setTestHost($value)
+    {
+        return $this->setParameter('testHost', $value);
     }
 
     public function getVs()
