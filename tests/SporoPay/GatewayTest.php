@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Omnipay\Tests\SporoPay;
 
-use Http\Mock\Client as MockClient;
 use Omnipay\Common\Exception\InvalidRequestException;
-use Omnipay\Common\Http\Client;
+use Omnipay\Common\Http\ClientInterface;
 use Omnipay\SporoPay\Gateway;
 use Omnipay\SporoPay\Message\CompletePurchaseResponse;
 use Omnipay\SporoPay\Message\PurchaseRequest;
@@ -20,14 +19,14 @@ use Symfony\Component\HttpFoundation\Request;
 #[BackupGlobals(true)]
 final class GatewayTest extends TestCase
 {
-    private const SHARED_SECRET = 'Z3qY08EpvLlAAoMZdnyUdQ==';
+    private const string SHARED_SECRET = 'Z3qY08EpvLlAAoMZdnyUdQ==';
 
     private Gateway $gateway;
 
     #[\Override]
     protected function setUp(): void
     {
-        $this->gateway = new Gateway(new Client(new MockClient()), new Request());
+        $this->gateway = new Gateway(self::createStub(ClientInterface::class), new Request());
         $this->gateway->setSharedSecret(self::SHARED_SECRET);
     }
 

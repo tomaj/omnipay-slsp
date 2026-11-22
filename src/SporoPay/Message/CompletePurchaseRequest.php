@@ -16,7 +16,7 @@ class CompletePurchaseRequest extends AbstractRequest
     /**
      * Query parameters covered by SIGN2, in signing order.
      */
-    private const SIGNED_FIELDS = [
+    private const array SIGNED_FIELDS = [
         'u_predcislo',
         'u_cislo',
         'u_kbanky',
@@ -39,16 +39,16 @@ class CompletePurchaseRequest extends AbstractRequest
     #[\Override]
     public function getData(): array
     {
-        $data = implode(';', array_map(self::queryString(...), self::SIGNED_FIELDS));
+        $data = implode(';', array_map($this->queryString(...), self::SIGNED_FIELDS));
         $sign = new Des3Sign();
 
-        if (!hash_equals($sign->sign($data, $this->getSharedSecret() ?? ''), self::queryString('SIGN2'))) {
+        if (!hash_equals($sign->sign($data, $this->getSharedSecret() ?? ''), $this->queryString('SIGN2'))) {
             throw new InvalidRequestException('incorect signature');
         }
 
         return [
-            'RES' => self::queryString('result'),
-            'VS' => self::queryString('vs'),
+            'RES' => $this->queryString('result'),
+            'VS' => $this->queryString('vs'),
         ];
     }
 
@@ -69,7 +69,7 @@ class CompletePurchaseRequest extends AbstractRequest
         return $this;
     }
 
-    private static function queryString(string $key): string
+    private function queryString(string $key): string
     {
         $value = $_GET[$key] ?? '';
 

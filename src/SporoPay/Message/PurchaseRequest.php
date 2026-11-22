@@ -51,9 +51,9 @@ class PurchaseRequest extends AbstractRequest
         $input = implode(';', [
             $this->getAccountNumberPrefix(),
             $this->getAccountNumber(),
-            self::stringValue($data['pu_kbanky'] ?? null),
+            $this->stringValue($data['pu_kbanky'] ?? null),
             $this->getAmount(),
-            self::stringValue($data['mena'] ?? null),
+            $this->stringValue($data['mena'] ?? null),
             $this->getVs(),
             $this->getSs(),
             $this->getRurl(),
@@ -164,7 +164,7 @@ class PurchaseRequest extends AbstractRequest
         return $this;
     }
 
-    private static function stringValue(mixed $value): string
+    private function stringValue(mixed $value): string
     {
         return is_string($value) ? $value : '';
     }

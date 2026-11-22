@@ -10,8 +10,8 @@ use PHPUnit\Framework\TestCase;
 
 final class Des3SignTest extends TestCase
 {
-    private const SECRET = 'Z3qY08EpvLlAAoMZdnyUdQ==';
-    private const PURCHASE = '000000;0013662162;0900;5.80;EUR;9960012037;0000002313;http://localhost:4444/testserver.php;abc=defgh';
+    private const string SECRET = 'Z3qY08EpvLlAAoMZdnyUdQ==';
+    private const string PURCHASE = '000000;0013662162;0900;5.80;EUR;9960012037;0000002313;http://localhost:4444/testserver.php;abc=defgh';
 
     /**
      * Expected values were computed independently with the openssl CLI:
