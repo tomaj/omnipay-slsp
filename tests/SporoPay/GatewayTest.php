@@ -165,12 +165,103 @@ final class GatewayTest extends TestCase
     }
 
     /**
+     * Valid returns (SIGN2 computed with the openssl CLI, see Des3SignTest) that belong to another payment.
+     *
+     * @return iterable<string, array{string, string, string, string}>
+     */
+    public static function otherPayments(): iterable
+    {
+        yield 'other variable symbol' => ['vs', '111', 'CWTU8KrnUbJgtb9aCXjKpTDQ7VNVz5/+', 'Variable symbol mismatch'];
+        yield 'other amount' => ['suma', '1.00', '/zr/fTO94eIgup8KG14y3XTDLDrmfuIV', 'Amount mismatch'];
+        yield 'other currency' => ['mena', 'CZK', '5bssy0imgZ2JxNevUPfivjMbiC5bAypQ', 'Currency mismatch'];
+    }
+
+    #[DataProvider('otherPayments')]
+    public function testCompletePurchaseRejectsReturnOfAnotherPayment(string $key, string $value, string $sign2, string $message): void
+    {
+        $query = $this->notification('OK');
+        $query[$key] = $value;
+        $query['SIGN2'] = $sign2;
+
+        $this->expectException(InvalidRequestException::class);
+        $this->expectExceptionMessageIs($message);
+
+        $this->complete($query);
+    }
+
+    public function testCompletePurchaseAcceptsTheExpectedPayment(): void
+    {
+        $query = $this->notification('OK');
+        $query['vs'] = '111';
+        $query['SIGN2'] = 'CWTU8KrnUbJgtb9aCXjKpTDQ7VNVz5/+';
+
+        $response = $this->complete($query, ['vs' => '111', 'amount' => '5.8', 'ss' => '0000002313']);
+
+        self::assertTrue($response->isSuccessful());
+        self::assertSame('111', $response->getVs());
+        self::assertSame('0000002313', $response->getSs());
+        self::assertSame('5.80', $response->getAmount());
+        self::assertSame('EUR', $response->getCurrency());
+        self::assertSame('OK', $response->getReal());
+        self::assertSame(['RES' => 'OK', 'VS' => '111', 'SS' => '0000002313', 'AMOUNT' => '5.80', 'CURRENCY' => 'EUR', 'REAL' => 'OK'], $response->getData());
+    }
+
+    public function testCompletePurchaseRejectsAnotherSpecificSymbol(): void
+    {
+        $query = $this->notification('OK');
+        $query['ss'] = '0000009999';
+        $query['SIGN2'] = 'f2bHZD4OS05vDUL169SgpEXTmSFLElyK';
+
+        // without an expected ss, any signed ss is accepted
+        self::assertSame('0000009999', $this->complete($query)->getSs());
+
+        $this->expectException(InvalidRequestException::class);
+        $this->expectExceptionMessageIs('Specific symbol mismatch');
+
+        $this->complete($query, ['vs' => '9960012037', 'amount' => '5.80', 'ss' => '0000002313']);
+    }
+
+    public function testRealIsExposedAsSigned(): void
+    {
+        $query = $this->notification('OK');
+        $query['real'] = 'NOK';
+        $query['SIGN2'] = 'se8hxAYo+t5yE0e5+5JRkg+zEIS/mmX9';
+
+        $response = $this->complete($query);
+
+        self::assertSame('OK', $response->getRes());
+        self::assertSame('NOK', $response->getReal());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function missingExpectations(): iterable
+    {
+        yield 'no vs' => [['amount' => '5.80'], 'The vs parameter is required'];
+        yield 'empty vs' => [['vs' => '', 'amount' => '5.80'], 'The vs parameter is required'];
+        yield 'no amount' => [['vs' => '9960012037'], 'The amount parameter is required'];
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    #[DataProvider('missingExpectations')]
+    public function testCompletePurchaseRequiresTheExpectedPayment(array $parameters, string $message): void
+    {
+        $this->expectException(InvalidRequestException::class);
+        $this->expectExceptionMessageIs($message);
+
+        $this->complete($this->signedNotification('OK'), $parameters);
+    }
+
+    /**
      * Completes a purchase with the gateway's settings and $query as the bank's return request.
      *
      * @param array<string, mixed> $query
      * @param array<string, mixed> $parameters
      */
-    private function complete(array $query, array $parameters = []): CompletePurchaseResponse
+    private function complete(array $query, array $parameters = ['vs' => '9960012037', 'amount' => '5.80']): CompletePurchaseResponse
     {
         $gateway = new Gateway(self::createStub(ClientInterface::class), new Request($query));
         $gateway->setSharedSecret($this->gateway->getSharedSecret());

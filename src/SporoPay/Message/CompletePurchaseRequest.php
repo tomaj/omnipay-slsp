@@ -34,11 +34,26 @@ final class CompletePurchaseRequest extends AbstractRequest
     ];
 
     /**
-     * @return array{RES: string, VS: string}
+     * Verifies the bank's return request and that it belongs to the expected order.
+     *
+     * SIGN2 covers every field of the return, so after the signature check the variable
+     * symbol, the amount, the currency and (when given) the specific symbol are compared
+     * with the order being completed.
+     *
+     * @return array{RES: string, VS: string, SS: string, AMOUNT: string, CURRENCY: string, REAL: string}
+     * @throws InvalidRequestException when vs or amount is missing, the signature is invalid,
+     *                                 or the return belongs to another payment
      */
     #[\Override]
     public function getData(): array
     {
+        $expectedVs = $this->getVs();
+        if ($expectedVs === null || $expectedVs === '') {
+            throw new InvalidRequestException('The vs parameter is required');
+        }
+        $this->validate('amount');
+        $expectedAmount = $this->getAmount(); // formatted with two decimals, like purchase() sends it
+
         $data = implode(';', array_map($this->queryString(...), self::SIGNED_FIELDS));
         $sign = new Des3Sign();
 
@@ -46,9 +61,34 @@ final class CompletePurchaseRequest extends AbstractRequest
             throw new InvalidRequestException('incorect signature');
         }
 
+        $vs = $this->queryString('vs');
+        if ($vs !== $expectedVs) {
+            throw new InvalidRequestException('Variable symbol mismatch');
+        }
+
+        $amount = $this->queryString('suma');
+        if ($amount !== $expectedAmount) {
+            throw new InvalidRequestException('Amount mismatch');
+        }
+
+        $currency = $this->queryString('mena');
+        if ($currency !== PurchaseRequest::CURRENCY) {
+            throw new InvalidRequestException('Currency mismatch');
+        }
+
+        $ss = $this->queryString('ss');
+        $expectedSs = $this->getSs();
+        if ($expectedSs !== null && $ss !== $expectedSs) {
+            throw new InvalidRequestException('Specific symbol mismatch');
+        }
+
         return [
             'RES' => $this->queryString('result'),
-            'VS' => $this->queryString('vs'),
+            'VS' => $vs,
+            'SS' => $ss,
+            'AMOUNT' => $amount,
+            'CURRENCY' => $currency,
+            'REAL' => $this->queryString('real'),
         ];
     }
 
@@ -72,6 +112,34 @@ final class CompletePurchaseRequest extends AbstractRequest
     public function setSharedSecret(?string $value): static
     {
         $this->setParameter('sharedSecret', $value);
+        return $this;
+    }
+
+    /**
+     * The variable symbol of the order being completed; the returned vs must be equal to it.
+     */
+    public function getVs(): ?string
+    {
+        return $this->getStringParameter('vs');
+    }
+
+    public function setVs(?string $value): static
+    {
+        $this->setParameter('vs', $value);
+        return $this;
+    }
+
+    /**
+     * The specific symbol sent in purchase(); when set, the returned ss must be equal to it.
+     */
+    public function getSs(): ?string
+    {
+        return $this->getStringParameter('ss');
+    }
+
+    public function setSs(?string $value): static
+    {
+        $this->setParameter('ss', $value);
         return $this;
     }
 

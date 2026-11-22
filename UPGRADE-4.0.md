@@ -2,6 +2,33 @@
 
 4.0 requires PHP 8.4, types the public API, makes the classes `final` and checks that the bank's return belongs to the order you are completing. Each change below shows the code before and after.
 
+## `completePurchase()` requires the expected variable symbol and amount
+
+SporoPay signs every field of the return (`SIGN2`), but 3.x only checked the signature, so a genuine success return of one order (or of a smaller amount) also completed another. 4.0 requires the variable symbol and amount of the order you are completing and compares them with the signed `vs` and `suma` (and `mena` with `EUR`):
+
+```php
+// 3.x
+$response = $gateway->completePurchase()->send();
+if ($response->isSuccessful()) {
+    $order = $orders->findByVs($response->getVs());
+    $order->markPaid();
+}
+
+// 4.0
+$order = $orders->findByVs($request->getQuery('vs')); // or the order from your session
+$response = $gateway->completePurchase([
+    'vs' => $order->vs,
+    'amount' => $order->amount,   // '10.00', 10.0 or '10' (compared as '10.00')
+    'ss' => $order->ss,           // optional: also compare the specific symbol
+])->send();
+// throws InvalidRequestException('Variable symbol mismatch' / 'Amount mismatch' / ...) for another payment
+if ($response->isSuccessful()) {
+    $order->markPaid();
+}
+```
+
+Without `vs` or `amount`, `send()` throws `InvalidRequestException('The vs parameter is required')` / `('The amount parameter is required')`. The response also returns the signed `getSs()`, `getAmount()`, `getCurrency()` and `getReal()`, and `getData()` has the keys `RES`, `VS`, `SS`, `AMOUNT`, `CURRENCY`, `REAL`.
+
 ## PHP 8.4 and omnipay/common 3.2
 
 `composer.json` requires `"php": "^8.4"` and `"omnipay/common": "^3.2"`. Upgrade PHP first, then:

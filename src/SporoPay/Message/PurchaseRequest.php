@@ -14,6 +14,16 @@ final class PurchaseRequest extends AbstractRequest
     use StringParameterTrait;
 
     /**
+     * SporoPay pays in euro only.
+     */
+    public const string CURRENCY = 'EUR';
+
+    /**
+     * Bank code of Slovenská sporiteľňa (pu_kbanky).
+     */
+    public const string BANK_CODE = '0900';
+
+    /**
      * @return array<string, ?string>
      */
     #[\Override]
@@ -24,9 +34,9 @@ final class PurchaseRequest extends AbstractRequest
 
         $data['pu_predcislo'] = $this->getAccountNumberPrefix();
         $data['pu_cislo'] = $this->getAccountNumber();
-        $data['pu_kbanky'] = '0900';
+        $data['pu_kbanky'] = self::BANK_CODE;
         $data['suma'] = $this->getAmount();
-        $data['mena'] = 'EUR';
+        $data['mena'] = self::CURRENCY;
         $data['vs'] = $this->getVs();
         $data['ss'] = $this->getSs();
         $data['url'] = $this->getRurl();

@@ -33,6 +33,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Security
 
+* **Security**: **BREAKING CHANGE**: `completePurchase()` requires the `vs` and `amount` of the order being completed and, after the `SIGN2` check, throws `InvalidRequestException` when the signed return belongs to another payment: `Variable symbol mismatch`, `Amount mismatch` (the signed `suma` is compared with the amount formatted like `purchase()` sends it, e.g. `'5.80'`), `Currency mismatch` (`mena` is not `EUR`) and, when `ss` is passed, `Specific symbol mismatch`. Without `vs`/`amount` it throws `The vs parameter is required` / `The amount parameter is required`. `CompletePurchaseResponse` exposes the signed `getSs()`, `getAmount()`, `getCurrency()` and `getReal()`. See [UPGRADE-4.0.md](https://github.com/tomaj/omnipay-slsp/blob/master/UPGRADE-4.0.md) ([#15](https://github.com/tomaj/omnipay-slsp/issues/15)).
 * **Security**: `CompletePurchaseRequest` compares the `SIGN2` query parameter with `hash_equals()` instead of `!=` ([#6](https://github.com/tomaj/omnipay-slsp/pull/6)).
 
 ## [3.2.0] - 2022-08-25
