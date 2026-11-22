@@ -109,7 +109,7 @@ final class GatewayTest extends TestCase
         $_GET['suma'] = '9.99';
 
         $this->expectException(InvalidRequestException::class);
-        $this->expectExceptionMessage('incorect signature');
+        $this->expectExceptionMessageIs('incorect signature');
 
         $this->gateway->completePurchase()->send();
     }
@@ -150,7 +150,7 @@ final class GatewayTest extends TestCase
         $_GET[$key] = $value;
 
         $this->expectException(InvalidRequestException::class);
-        $this->expectExceptionMessage('incorect signature');
+        $this->expectExceptionMessageIs('incorect signature');
 
         $this->gateway->completePurchase()->send();
     }
@@ -198,7 +198,7 @@ final class GatewayTest extends TestCase
     private function signedNotification(string $result): array
     {
         $query = $this->notification($result);
-        $query['SIGN2'] = (new Des3Sign())->sign(implode(';', $query), self::SHARED_SECRET);
+        $query['SIGN2'] = new Des3Sign()->sign(implode(';', $query), self::SHARED_SECRET);
 
         return $query;
     }

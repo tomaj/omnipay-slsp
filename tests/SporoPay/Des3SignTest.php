@@ -47,7 +47,7 @@ final class Des3SignTest extends TestCase
     #[DataProvider('vectors')]
     public function testKnownSignature(string $input, string $secret, string $expected): void
     {
-        self::assertSame($expected, (new Des3Sign())->sign($input, $secret));
+        self::assertSame($expected, new Des3Sign()->sign($input, $secret));
     }
 
     /**
@@ -64,8 +64,8 @@ final class Des3SignTest extends TestCase
     public function testInvalidSecretThrows(string $secret): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Shared secret must be base64 encoded');
+        $this->expectExceptionMessageIs('Shared secret must be base64 encoded');
 
-        (new Des3Sign())->sign(self::PURCHASE, $secret);
+        new Des3Sign()->sign(self::PURCHASE, $secret);
     }
 }

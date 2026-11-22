@@ -13,7 +13,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Changed
 
-* **BREAKING CHANGE**: Requires PHP 8.3 or newer (no PHP constraint before; Travis tested PHP 5.6 and 7.0) ([#6](https://github.com/tomaj/omnipay-slsp/pull/6)).
+* **BREAKING CHANGE**: Requires PHP 8.4 or newer (no PHP constraint before; Travis tested PHP 5.6 and 7.0) ([#6](https://github.com/tomaj/omnipay-slsp/pull/6), [#10](https://github.com/tomaj/omnipay-slsp/issues/10)).
 * **BREAKING CHANGE**: Requires `omnipay/common` ^3.2 (was ~3.0) ([#6](https://github.com/tomaj/omnipay-slsp/pull/6)).
 * **BREAKING CHANGE**: Parameter getters and setters are typed: getters return `?string`, setters take `?string` and return `static`; `Des3Sign::sign()` takes and returns `string`. Code that extends these classes must match the new signatures ([#6](https://github.com/tomaj/omnipay-slsp/pull/6)).
 * **BREAKING CHANGE**: `Des3Sign::sign()` decodes the shared secret with strict base64 and throws `InvalidArgumentException` when it is not valid base64. Whitespace, line breaks and missing `=` padding are still accepted; any other character outside the base64 alphabet (URL-safe `-`/`_`, surrounding quotes from a config file, a malformed `=` padding) used to be silently skipped and is now rejected - check your configured secret before upgrading. It throws `RuntimeException` when OpenSSL fails (an empty signature was returned before) ([#6](https://github.com/tomaj/omnipay-slsp/pull/6)).
