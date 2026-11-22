@@ -1,25 +1,27 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Omnipay\SporoPay\Message;
 
-use Omnipay\Common\Currency;
-use Omnipay\SporoPay\Sign\Des3Sign;
+use Omnipay\Common\Exception\InvalidRequestException;
 use Omnipay\Common\Message\AbstractRequest;
+use Omnipay\SporoPay\Sign\Des3Sign;
+use Omnipay\SporoPay\StringParameterTrait;
 
 class PurchaseRequest extends AbstractRequest
 {
-    public function initialize(array $parameters = array())
-    {
-        parent::initialize($parameters);
-        return $this;
-    }
+    use StringParameterTrait;
 
-    public function getData()
+    /**
+     * @return array<string, ?string>
+     */
+    #[\Override]
+    public function getData(): array
     {
         $this->validate('pu_predcislo', 'pu_cislo', 'vs', 'ss', 'rurl', 'param');
         $data = [];
-        
+
         $data['pu_predcislo'] = $this->getAccountNumberPrefix();
         $data['pu_cislo'] = $this->getAccountNumber();
         $data['pu_kbanky'] = '0900';
@@ -33,106 +35,137 @@ class PurchaseRequest extends AbstractRequest
         return $data;
     }
 
-    public function generateSignature($data)
+    public function generateSignature(string $data): string
     {
         $sign = new Des3Sign();
-        return $sign->sign($data, $this->getParameter('sharedSecret'));
+        return $sign->sign($data, $this->getSharedSecret() ?? '');
     }
 
-    public function sendData($data)
+    #[\Override]
+    public function sendData(mixed $data): PurchaseResponse
     {
-        $input = "{$this->getAccountNumberPrefix()};{$this->getAccountNumber()};{$data['pu_kbanky']};{$this->getAmount()};{$data['mena']};{$this->getVs()};{$this->getSs()};{$this->getRurl()};{$this->getParam()}";
+        if (!is_array($data)) {
+            throw new InvalidRequestException('Purchase data must be an array');
+        }
+
+        $input = implode(';', [
+            $this->getAccountNumberPrefix(),
+            $this->getAccountNumber(),
+            self::stringValue($data['pu_kbanky'] ?? null),
+            $this->getAmount(),
+            self::stringValue($data['mena'] ?? null),
+            $this->getVs(),
+            $this->getSs(),
+            $this->getRurl(),
+            $this->getParam(),
+        ]);
         $data['sign1'] = $this->generateSignature($input);
         return $this->response = new PurchaseResponse($this, $data);
     }
 
-    public function getEndpoint()
+    public function getEndpoint(): string
     {
-        if ($this->getTestmode()) {
-            $host = $this->getParameter('testHost') ?: 'https://platby.tomaj.sk';
+        if ($this->getTestMode()) {
+            $host = $this->getTestHost();
+            if ($host === null || $host === '') {
+                $host = 'https://platby.tomaj.sk';
+            }
             return $host . '/payment/sporopay-des';
-        } else {
-            return 'https://ib.slsp.sk/epayment/epayment/epayment.xml';
         }
+
+        return 'https://ib.slsp.sk/epayment/epayment/epayment.xml';
     }
 
-    public function getSharedSecret()
+    public function getSharedSecret(): ?string
     {
-        return $this->getParameter('sharedSecret');
+        return $this->getStringParameter('sharedSecret');
     }
 
-    public function setSharedSecret($value)
+    public function setSharedSecret(?string $value): static
     {
-        return $this->setParameter('sharedSecret', $value);
+        $this->setParameter('sharedSecret', $value);
+        return $this;
     }
 
-    public function getTestHost()
+    public function getTestHost(): ?string
     {
-        return $this->getParameter('testHost');
+        return $this->getStringParameter('testHost');
     }
 
-    public function setTestHost($value)
+    public function setTestHost(?string $value): static
     {
-        return $this->setParameter('testHost', $value);
+        $this->setParameter('testHost', $value);
+        return $this;
     }
 
-    public function getVs()
+    public function getVs(): ?string
     {
-        return $this->getParameter('vs');
+        return $this->getStringParameter('vs');
     }
 
-    public function setVs($value)
+    public function setVs(?string $value): static
     {
-        return $this->setParameter('vs', $value);
+        $this->setParameter('vs', $value);
+        return $this;
     }
 
-    public function getSs()
+    public function getSs(): ?string
     {
-        return $this->getParameter('ss');
+        return $this->getStringParameter('ss');
     }
 
-    public function setSs($value)
+    public function setSs(?string $value): static
     {
-        return $this->setParameter('ss', $value);
+        $this->setParameter('ss', $value);
+        return $this;
     }
 
-    public function getRurl()
+    public function getRurl(): ?string
     {
-        return $this->getParameter('rurl');
-    }
-    
-    public function setRurl($value)
-    {
-        return $this->setParameter('rurl', $value);
+        return $this->getStringParameter('rurl');
     }
 
-    public function getAccountNumberPrefix()
+    public function setRurl(?string $value): static
     {
-        return $this->getParameter('pu_predcislo');
-    }
-    
-    public function setAccountNumberPrefix($value)
-    {
-        return $this->setParameter('pu_predcislo', $value);
+        $this->setParameter('rurl', $value);
+        return $this;
     }
 
-    public function getAccountNumber()
+    public function getAccountNumberPrefix(): ?string
     {
-        return $this->getParameter('pu_cislo');
-    }
-    
-    public function setAccountNumber($value)
-    {
-        return $this->setParameter('pu_cislo', $value);
+        return $this->getStringParameter('pu_predcislo');
     }
 
-    public function getParam()
+    public function setAccountNumberPrefix(?string $value): static
     {
-        return $this->getParameter('param');
+        $this->setParameter('pu_predcislo', $value);
+        return $this;
     }
-    
-    public function setParam($value)
+
+    public function getAccountNumber(): ?string
     {
-        return $this->setParameter('param', $value);
+        return $this->getStringParameter('pu_cislo');
+    }
+
+    public function setAccountNumber(?string $value): static
+    {
+        $this->setParameter('pu_cislo', $value);
+        return $this;
+    }
+
+    public function getParam(): ?string
+    {
+        return $this->getStringParameter('param');
+    }
+
+    public function setParam(?string $value): static
+    {
+        $this->setParameter('param', $value);
+        return $this;
+    }
+
+    private static function stringValue(mixed $value): string
+    {
+        return is_string($value) ? $value : '';
     }
 }

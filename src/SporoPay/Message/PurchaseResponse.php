@@ -1,35 +1,49 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Omnipay\SporoPay\Message;
 
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RedirectResponseInterface;
-use Omnipay\Core\Message\AbstractRequest;
 
 class PurchaseResponse extends AbstractResponse implements RedirectResponseInterface
 {
-    public function isSuccessful()
+    #[\Override]
+    public function isSuccessful(): bool
     {
         return false;
     }
 
-    public function isRedirect()
+    #[\Override]
+    public function isRedirect(): bool
     {
         return true;
     }
 
-    public function getRedirectUrl()
+    #[\Override]
+    public function getRedirectUrl(): string
     {
-        return $this->getRequest()->getEndpoint(). '?' . http_build_query($this->getRedirectData());
+        $request = $this->getRequest();
+        if (!$request instanceof PurchaseRequest) {
+            throw new \LogicException('PurchaseResponse requires a PurchaseRequest');
+        }
+
+        return $request->getEndpoint() . '?' . http_build_query($this->getRedirectData());
     }
 
-    public function getRedirectMethod()
+    #[\Override]
+    public function getRedirectMethod(): string
     {
         return 'GET';
     }
 
-    public function getRedirectData()
+    /**
+     * @return array<mixed>
+     */
+    #[\Override]
+    public function getRedirectData(): array
     {
-        return $this->data;
+        return is_array($this->data) ? $this->data : [];
     }
 }

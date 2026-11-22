@@ -1,17 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Omnipay\SporoPay;
 
 use Omnipay\Common\AbstractGateway;
+use Omnipay\Common\Message\RequestInterface;
+use Omnipay\SporoPay\Message\CompletePurchaseRequest;
+use Omnipay\SporoPay\Message\PurchaseRequest;
 
 class Gateway extends AbstractGateway
 {
-    public function getName()
+    use StringParameterTrait;
+
+    #[\Override]
+    public function getName(): string
     {
         return 'SporoPay SLSP Gateway';
     }
 
-    public function getDefaultParameters()
+    /**
+     * @return array<string, string>
+     */
+    #[\Override]
+    public function getDefaultParameters(): array
     {
         return [
             'sharedSecret' => '',
@@ -19,33 +31,41 @@ class Gateway extends AbstractGateway
         ];
     }
 
-    public function getSharedSecret()
+    public function getSharedSecret(): ?string
     {
-        return $this->getParameter('sharedSecret');
-    }
-    
-    public function setSharedSecret($value)
-    {
-        return $this->setParameter('sharedSecret', $value);
+        return $this->getStringParameter('sharedSecret');
     }
 
-    public function getTestHost()
+    public function setSharedSecret(?string $value): static
     {
-        return $this->getParameter('testHost');
+        $this->setParameter('sharedSecret', $value);
+        return $this;
     }
 
-    public function setTestHost($value)
+    public function getTestHost(): ?string
     {
-        return $this->setParameter('testHost', $value);
+        return $this->getStringParameter('testHost');
     }
 
-    public function purchase(array $parameters = array())
+    public function setTestHost(?string $value): static
     {
-        return $this->createRequest(\Omnipay\SporoPay\Message\PurchaseRequest::class, $parameters);
+        $this->setParameter('testHost', $value);
+        return $this;
     }
 
-    public function completePurchase(array $parameters = array())
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    public function purchase(array $parameters = []): RequestInterface
     {
-        return $this->createRequest(\Omnipay\SporoPay\Message\CompletePurchaseRequest::class, $parameters);
+        return $this->createRequest(PurchaseRequest::class, $parameters);
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    public function completePurchase(array $parameters = []): RequestInterface
+    {
+        return $this->createRequest(CompletePurchaseRequest::class, $parameters);
     }
 }
