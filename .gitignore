@@ -1,6 +1,7 @@
-vendor
+/vendor/
+/build/
+/.phpunit.cache/
 composer.lock
-build
-.phpunit.cache
-/.buildpath
-/.project
+docs/node_modules/
+docs/.vitepress/cache/
+docs/.vitepress/dist/

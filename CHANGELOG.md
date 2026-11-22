@@ -6,6 +6,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Added
 
+* `LICENSE.md` (MIT, as declared in `composer.json`), `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `RELEASING.md`, issue and pull request templates; `composer.json` has `support` links and suggests an HTTP client for Omnipay ([#7](https://github.com/tomaj/omnipay-slsp/issues/7)).
 * GitHub Actions CI (PHP 8.3 - 8.6, nightly 8.7, lowest dependencies), PHPUnit 12, PHP-CS-Fixer (PER-CS), PHPStan level max with strict rules, `composer audit`, Dependabot ([#6](https://github.com/tomaj/omnipay-slsp/pull/6)).
 * Tests for the test-mode endpoints and the complete purchase signature check; `sign1`/`SIGN2` vectors computed independently with the `openssl` CLI (DES-EDE3-CBC), tampered notifications, invalid secrets ([#6](https://github.com/tomaj/omnipay-slsp/pull/6)).
 
@@ -20,6 +21,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Removed
 
+* The Composer dist archive contains only the library (`src/`, `composer.json`, README, LICENSE, CHANGELOG, UPGRADE): tests, CI and tool configs are `export-ignore`d. The ad-hoc scripts `test.php` and `testserver.php` are removed; the documentation has working examples ([#7](https://github.com/tomaj/omnipay-slsp/issues/7)).
 * The no-op `PurchaseRequest::initialize()` override (the parent implementation is used) ([#6](https://github.com/tomaj/omnipay-slsp/pull/6)).
 * Travis CI configuration, the unused `omnipay/tests` and `squizlabs/php_codesniffer` dev dependencies ([#6](https://github.com/tomaj/omnipay-slsp/pull/6)).
 
