@@ -13,6 +13,7 @@ use Omnipay\SporoPay\Message\PurchaseRequest;
 use Omnipay\SporoPay\Message\PurchaseResponse;
 use Omnipay\SporoPay\Sign\Des3Sign;
 use PHPUnit\Framework\Attributes\BackupGlobals;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -114,6 +115,58 @@ final class GatewayTest extends TestCase
         $this->gateway->completePurchase()->send();
     }
 
+    public function testCompletePurchaseWithKnownSignature(): void
+    {
+        // SIGN2 computed independently with the openssl CLI (see Des3SignTest)
+        $_GET = $this->notification('OK');
+        $_GET['SIGN2'] = 'uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV';
+
+        $response = $this->gateway->completePurchase()->send();
+
+        self::assertInstanceOf(CompletePurchaseResponse::class, $response);
+        self::assertTrue($response->isSuccessful());
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function tamperedNotifications(): iterable
+    {
+        yield 'amount' => ['suma', '5.81'];
+        yield 'variable symbol' => ['vs', '9960012038'];
+        yield 'result' => ['result', 'NOK'];
+        yield 'real' => ['real', 'NOK'];
+        yield 'payer account' => ['u_cislo', '1234567891'];
+        yield 'lower-case SIGN2' => ['SIGN2', strtolower('uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV')];
+        yield 'SIGN2 with trailing space' => ['SIGN2', 'uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV '];
+        yield 'empty SIGN2' => ['SIGN2', ''];
+        yield 'array SIGN2' => ['SIGN2', ['uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV']];
+    }
+
+    #[DataProvider('tamperedNotifications')]
+    public function testCompletePurchaseRejectsTamperedNotification(string $key, mixed $value): void
+    {
+        $_GET = $this->notification('OK');
+        $_GET['SIGN2'] = 'uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV';
+        $_GET[$key] = $value;
+
+        $this->expectException(InvalidRequestException::class);
+        $this->expectExceptionMessage('incorect signature');
+
+        $this->gateway->completePurchase()->send();
+    }
+
+    public function testCompletePurchaseWithWrongSecret(): void
+    {
+        $_GET = $this->notification('OK');
+        $_GET['SIGN2'] = 'uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV';
+        $this->gateway->setSharedSecret('ABEiM0RVZneImaq7zN3u/wARIjNEVWZ3');
+
+        $this->expectException(InvalidRequestException::class);
+
+        $this->gateway->completePurchase()->send();
+    }
+
     public function testCompletePurchaseWithoutSignature(): void
     {
         $_GET = ['vs' => '9960012037', 'result' => 'OK'];
@@ -145,7 +198,18 @@ final class GatewayTest extends TestCase
      */
     private function signedNotification(string $result): array
     {
-        $query = [
+        $query = $this->notification($result);
+        $query['SIGN2'] = (new Des3Sign())->sign(implode(';', $query), self::SHARED_SECRET);
+
+        return $query;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function notification(string $result): array
+    {
+        return [
             'u_predcislo' => '000000',
             'u_cislo' => '1234567890',
             'u_kbanky' => '0900',
@@ -161,8 +225,5 @@ final class GatewayTest extends TestCase
             'result' => $result,
             'real' => $result,
         ];
-        $query['SIGN2'] = (new Des3Sign())->sign(implode(';', $query), self::SHARED_SECRET);
-
-        return $query;
     }
 }
