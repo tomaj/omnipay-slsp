@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Omnipay\SporoPay;
 
 use Omnipay\Common\AbstractGateway;
-use Omnipay\Common\Message\RequestInterface;
 use Omnipay\SporoPay\Message\CompletePurchaseRequest;
 use Omnipay\SporoPay\Message\PurchaseRequest;
 
-class Gateway extends AbstractGateway
+final class Gateway extends AbstractGateway
 {
     use StringParameterTrait;
 
@@ -56,16 +55,22 @@ class Gateway extends AbstractGateway
     /**
      * @param array<string, mixed> $parameters
      */
-    public function purchase(array $parameters = []): RequestInterface
+    public function purchase(array $parameters = []): PurchaseRequest
     {
-        return $this->createRequest(PurchaseRequest::class, $parameters);
+        $request = new PurchaseRequest($this->httpClient, $this->httpRequest);
+        $request->initialize(array_replace($this->getParameters(), $parameters));
+
+        return $request;
     }
 
     /**
      * @param array<string, mixed> $parameters
      */
-    public function completePurchase(array $parameters = []): RequestInterface
+    public function completePurchase(array $parameters = []): CompletePurchaseRequest
     {
-        return $this->createRequest(CompletePurchaseRequest::class, $parameters);
+        $request = new CompletePurchaseRequest($this->httpClient, $this->httpRequest);
+        $request->initialize(array_replace($this->getParameters(), $parameters));
+
+        return $request;
     }
 }

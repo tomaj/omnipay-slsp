@@ -6,14 +6,14 @@ namespace Omnipay\SporoPay\Message;
 
 use Omnipay\Common\Message\AbstractResponse;
 
-class CompletePurchaseResponse extends AbstractResponse
+final class CompletePurchaseResponse extends AbstractResponse
 {
-    public const SUCCESS = 'OK';
+    public const string SUCCESS = 'OK';
 
     #[\Override]
     public function isSuccessful(): bool
     {
-        return static::SUCCESS === $this->getRes();
+        return self::SUCCESS === $this->getRes();
     }
 
     public function getRes(): ?string

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Omnipay\Tests\SporoPay;
 
+use Omnipay\SporoPay\Exception\InvalidArgumentException;
 use Omnipay\SporoPay\Sign\Des3Sign;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -63,7 +64,7 @@ final class Des3SignTest extends TestCase
     #[DataProvider('invalidSecrets')]
     public function testInvalidSecretThrows(string $secret): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageIs('Shared secret must be base64 encoded');
 
         new Des3Sign()->sign(self::PURCHASE, $secret);

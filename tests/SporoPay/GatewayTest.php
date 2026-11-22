@@ -8,15 +8,11 @@ use Omnipay\Common\Exception\InvalidRequestException;
 use Omnipay\Common\Http\ClientInterface;
 use Omnipay\SporoPay\Gateway;
 use Omnipay\SporoPay\Message\CompletePurchaseResponse;
-use Omnipay\SporoPay\Message\PurchaseRequest;
-use Omnipay\SporoPay\Message\PurchaseResponse;
 use Omnipay\SporoPay\Sign\Des3Sign;
-use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
-#[BackupGlobals(true)]
 final class GatewayTest extends TestCase
 {
     private const string SHARED_SECRET = 'Z3qY08EpvLlAAoMZdnyUdQ==';
@@ -39,12 +35,10 @@ final class GatewayTest extends TestCase
     {
         $request = $this->gateway->purchase($this->purchaseParameters());
 
-        self::assertInstanceOf(PurchaseRequest::class, $request);
         self::assertSame('5.80', $request->getAmount());
 
         $response = $request->send();
 
-        self::assertInstanceOf(PurchaseResponse::class, $response);
         self::assertTrue($response->isRedirect());
         self::assertFalse($response->isSuccessful());
         self::assertSame('GET', $response->getRedirectMethod());
@@ -59,7 +53,6 @@ final class GatewayTest extends TestCase
         $this->gateway->setTestMode(true);
         $response = $this->gateway->purchase($this->purchaseParameters())->send();
 
-        self::assertInstanceOf(PurchaseResponse::class, $response);
         self::assertStringStartsWith('https://platby.tomaj.sk/payment/sporopay-des?', $response->getRedirectUrl());
     }
 
@@ -69,7 +62,6 @@ final class GatewayTest extends TestCase
         $this->gateway->setTestHost('http://localhost:8080');
         $response = $this->gateway->purchase($this->purchaseParameters())->send();
 
-        self::assertInstanceOf(PurchaseResponse::class, $response);
         self::assertStringStartsWith('http://localhost:8080/payment/sporopay-des?', $response->getRedirectUrl());
     }
 
@@ -82,11 +74,10 @@ final class GatewayTest extends TestCase
 
     public function testCompletePurchaseWithValidSignature(): void
     {
-        $_GET = $this->signedNotification('OK');
+        $query = $this->signedNotification('OK');
 
-        $response = $this->gateway->completePurchase()->send();
+        $response = $this->complete($query);
 
-        self::assertInstanceOf(CompletePurchaseResponse::class, $response);
         self::assertTrue($response->isSuccessful());
         self::assertSame('OK', $response->getRes());
         self::assertSame('9960012037', $response->getVs());
@@ -94,35 +85,33 @@ final class GatewayTest extends TestCase
 
     public function testCompletePurchaseWithFailedPayment(): void
     {
-        $_GET = $this->signedNotification('NOK');
+        $query = $this->signedNotification('NOK');
 
-        $response = $this->gateway->completePurchase()->send();
+        $response = $this->complete($query);
 
-        self::assertInstanceOf(CompletePurchaseResponse::class, $response);
         self::assertFalse($response->isSuccessful());
         self::assertSame('NOK', $response->getRes());
     }
 
     public function testCompletePurchaseWithInvalidSignature(): void
     {
-        $_GET = $this->signedNotification('OK');
-        $_GET['suma'] = '9.99';
+        $query = $this->signedNotification('OK');
+        $query['suma'] = '9.99';
 
         $this->expectException(InvalidRequestException::class);
         $this->expectExceptionMessageIs('incorect signature');
 
-        $this->gateway->completePurchase()->send();
+        $this->complete($query);
     }
 
     public function testCompletePurchaseWithKnownSignature(): void
     {
         // SIGN2 computed independently with the openssl CLI (see Des3SignTest)
-        $_GET = $this->notification('OK');
-        $_GET['SIGN2'] = 'uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV';
+        $query = $this->notification('OK');
+        $query['SIGN2'] = 'uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV';
 
-        $response = $this->gateway->completePurchase()->send();
+        $response = $this->complete($query);
 
-        self::assertInstanceOf(CompletePurchaseResponse::class, $response);
         self::assertTrue($response->isSuccessful());
     }
 
@@ -145,34 +134,48 @@ final class GatewayTest extends TestCase
     #[DataProvider('tamperedNotifications')]
     public function testCompletePurchaseRejectsTamperedNotification(string $key, mixed $value): void
     {
-        $_GET = $this->notification('OK');
-        $_GET['SIGN2'] = 'uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV';
-        $_GET[$key] = $value;
+        $query = $this->notification('OK');
+        $query['SIGN2'] = 'uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV';
+        $query[$key] = $value;
 
         $this->expectException(InvalidRequestException::class);
         $this->expectExceptionMessageIs('incorect signature');
 
-        $this->gateway->completePurchase()->send();
+        $this->complete($query);
     }
 
     public function testCompletePurchaseWithWrongSecret(): void
     {
-        $_GET = $this->notification('OK');
-        $_GET['SIGN2'] = 'uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV';
+        $query = $this->notification('OK');
+        $query['SIGN2'] = 'uJmQ7qZPNHy5kJPNt9N1cxa28cLaU5zV';
         $this->gateway->setSharedSecret('ABEiM0RVZneImaq7zN3u/wARIjNEVWZ3');
 
         $this->expectException(InvalidRequestException::class);
 
-        $this->gateway->completePurchase()->send();
+        $this->complete($query);
     }
 
     public function testCompletePurchaseWithoutSignature(): void
     {
-        $_GET = ['vs' => '9960012037', 'result' => 'OK'];
+        $query = ['vs' => '9960012037', 'result' => 'OK'];
 
         $this->expectException(InvalidRequestException::class);
 
-        $this->gateway->completePurchase()->send();
+        $this->complete($query);
+    }
+
+    /**
+     * Completes a purchase with the gateway's settings and $query as the bank's return request.
+     *
+     * @param array<string, mixed> $query
+     * @param array<string, mixed> $parameters
+     */
+    private function complete(array $query, array $parameters = []): CompletePurchaseResponse
+    {
+        $gateway = new Gateway(self::createStub(ClientInterface::class), new Request($query));
+        $gateway->setSharedSecret($this->gateway->getSharedSecret());
+
+        return $gateway->completePurchase($parameters)->send();
     }
 
     /**
