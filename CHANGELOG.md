@@ -6,6 +6,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Added
 
+* Documentation site https://tomaj.github.io/omnipay-slsp/ (VitePress): getting started, configuration, operations, signatures, test mode, API reference, FAQ; its examples live in `examples/` and run in the test suite ([#13](https://github.com/tomaj/omnipay-slsp/issues/13)).
 * `LICENSE.md` (MIT, as declared in `composer.json`), `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `RELEASING.md`, issue and pull request templates; `composer.json` has `support` links and suggests an HTTP client for Omnipay ([#7](https://github.com/tomaj/omnipay-slsp/issues/7)).
 * Tests for every public accessor, the package exceptions, `PurchaseResponse` without a `PurchaseRequest`, non-string response data; PHPUnit fails on its own deprecations, notices, warnings and an empty suite: 98 % statement coverage (CI requires 90 %), Infection MSI 100 % (CI requires `minMsi` and `minCoveredMsi` 95) ([#12](https://github.com/tomaj/omnipay-slsp/issues/12)).
 * Rector, PHPStan deprecation rules and Infection in `require-dev`; composer scripts `phpunit`, `coverage`, `infection`, `rector`, `rector-fix` with descriptions; `check` also runs Rector ([#9](https://github.com/tomaj/omnipay-slsp/issues/9)).

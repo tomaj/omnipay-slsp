@@ -30,5 +30,7 @@
     "minCoveredMsi": 95,
     "phpUnit": {
         "configDir": "."
-    }
+    },
+    // the examples run in separate processes and only exercise code the unit tests already cover
+    "testFrameworkOptions": "--exclude-group=examples"
 }

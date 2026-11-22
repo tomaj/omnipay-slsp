@@ -9,6 +9,7 @@ return RectorConfig::configure()
     ->withPaths([
         __DIR__ . '/src',
         __DIR__ . '/tests',
+        __DIR__ . '/examples',
     ])
     ->withImportNames(importShortClasses: false, removeUnusedImports: true)
     ->withPhpSets(php84: true)
