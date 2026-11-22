@@ -1,42 +1,78 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Omnipay\SporoPay\Message;
 
 use Omnipay\Common\Exception\InvalidRequestException;
 use Omnipay\Common\Message\AbstractRequest;
 use Omnipay\SporoPay\Sign\Des3Sign;
+use Omnipay\SporoPay\StringParameterTrait;
 
 class CompletePurchaseRequest extends AbstractRequest
 {
-    public function getData()
-    {
-        $sharedSecret = $this->getParameter('sharedSecret');
+    use StringParameterTrait;
 
-        $data = "{$_GET['u_predcislo']};{$_GET['u_cislo']};{$_GET['u_kbanky']};{$_GET['pu_predcislo']};{$_GET['pu_cislo']};{$_GET['pu_kbanky']};{$_GET['suma']};{$_GET['mena']};{$_GET['vs']};{$_GET['ss']};{$_GET['url']};{$_GET['param']};{$_GET['result']};{$_GET['real']}";
+    /**
+     * Query parameters covered by SIGN2, in signing order.
+     */
+    private const SIGNED_FIELDS = [
+        'u_predcislo',
+        'u_cislo',
+        'u_kbanky',
+        'pu_predcislo',
+        'pu_cislo',
+        'pu_kbanky',
+        'suma',
+        'mena',
+        'vs',
+        'ss',
+        'url',
+        'param',
+        'result',
+        'real',
+    ];
+
+    /**
+     * @return array{RES: string, VS: string}
+     */
+    #[\Override]
+    public function getData(): array
+    {
+        $data = implode(';', array_map(self::queryString(...), self::SIGNED_FIELDS));
         $sign = new Des3Sign();
 
-        if ($sign->sign($data, $sharedSecret) != $_GET['SIGN2']) {
+        if (!hash_equals($sign->sign($data, $this->getSharedSecret() ?? ''), self::queryString('SIGN2'))) {
             throw new InvalidRequestException('incorect signature');
         }
 
         return [
-            'RES' => $_GET['result'],
-            'VS' => $_GET['vs'],
+            'RES' => self::queryString('result'),
+            'VS' => self::queryString('vs'),
         ];
     }
 
-    public function sendData($data)
+    #[\Override]
+    public function sendData(mixed $data): CompletePurchaseResponse
     {
         return $this->response = new CompletePurchaseResponse($this, $data);
     }
 
-    public function getSharedSecret()
+    public function getSharedSecret(): ?string
     {
-        return $this->getParameter('sharedSecret');
+        return $this->getStringParameter('sharedSecret');
     }
 
-    public function setSharedSecret($value)
+    public function setSharedSecret(?string $value): static
     {
-        return $this->setParameter('sharedSecret', $value);
+        $this->setParameter('sharedSecret', $value);
+        return $this;
+    }
+
+    private static function queryString(string $key): string
+    {
+        $value = $_GET[$key] ?? '';
+
+        return is_string($value) ? $value : '';
     }
 }

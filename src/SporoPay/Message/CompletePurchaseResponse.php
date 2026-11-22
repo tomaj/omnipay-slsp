@@ -1,31 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Omnipay\SporoPay\Message;
 
 use Omnipay\Common\Message\AbstractResponse;
 
 class CompletePurchaseResponse extends AbstractResponse
 {
-    const SUCCESS = 'OK';
+    public const SUCCESS = 'OK';
 
-    public function isSuccessful()
+    #[\Override]
+    public function isSuccessful(): bool
     {
         return static::SUCCESS === $this->getRes();
     }
 
-    public function getRes()
+    public function getRes(): ?string
     {
-        if (isset($this->data['RES'])) {
-            return $this->data['RES'];
-        }
-        return null;
+        return $this->dataString('RES');
     }
 
-    public function getVs()
+    public function getVs(): ?string
     {
-        if (isset($this->data['VS'])) {
-            return $this->data['VS'];
+        return $this->dataString('VS');
+    }
+
+    private function dataString(string $key): ?string
+    {
+        if (is_array($this->data) && isset($this->data[$key]) && is_string($this->data[$key])) {
+            return $this->data[$key];
         }
+
         return null;
     }
 }
