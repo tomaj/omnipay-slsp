@@ -9,7 +9,7 @@ namespace Omnipay\SporoPay;
  */
 trait StringParameterTrait
 {
-    protected function getStringParameter(string $key): ?string
+    private function getStringParameter(string $key): ?string
     {
         $value = $this->getParameter($key);
         if (is_string($value)) {

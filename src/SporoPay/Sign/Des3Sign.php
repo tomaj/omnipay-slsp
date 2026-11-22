@@ -23,7 +23,7 @@ final readonly class Des3Sign
         }
         $key = $ssBytes . substr($ssBytes, 0, 8);
 
-        $iv = str_repeat(chr(0x00), 8);
+        $iv = "\x00\x00\x00\x00\x00\x00\x00\x00";
 
         $signatureBytes = @openssl_encrypt($bytesHash, 'DES-EDE3-CBC', $key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING, $iv);
         if ($signatureBytes === false) {

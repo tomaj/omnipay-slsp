@@ -12,10 +12,22 @@
         "json": "build/infection.json"
     },
     "mutators": {
-        "@default": true
+        "@default": true,
+        // a 16-byte key becomes K1 K2 K1 (24 bytes); OpenSSL uses only the first 24 bytes of a longer key,
+        // so appending 9 bytes or the whole key again signs the same for 16- and 24-byte secrets
+        "IncrementInteger": {
+            "ignore": [
+                "Omnipay\\SporoPay\\Sign\\Des3Sign::sign"
+            ]
+        },
+        "UnwrapSubstr": {
+            "ignore": [
+                "Omnipay\\SporoPay\\Sign\\Des3Sign::sign"
+            ]
+        }
     },
-    "minMsi": 85,
-    "minCoveredMsi": 90,
+    "minMsi": 95,
+    "minCoveredMsi": 95,
     "phpUnit": {
         "configDir": "."
     }

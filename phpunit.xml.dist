@@ -1,23 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
-         cacheDirectory=".phpunit.cache"
-         colors="true"
-         failOnDeprecation="true"
-         failOnNotice="true"
-         failOnWarning="true"
-         failOnRisky="true"
-         beStrictAboutOutputDuringTests="true">
-    <testsuites>
-        <testsuite name="Test Suite">
-            <directory>tests</directory>
-        </testsuite>
-    </testsuites>
-    <!-- dependencies (omnipay/common, symfony/http-foundation) trigger deprecations on new PHP versions; only fail on our own -->
-    <source ignoreIndirectDeprecations="true">
-        <include>
-            <directory suffix=".php">src</directory>
-        </include>
-    </source>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd" bootstrap="vendor/autoload.php" cacheDirectory=".phpunit.cache" executionOrder="defects" beStrictAboutOutputDuringTests="true" displayDetailsOnPhpunitDeprecations="true" displayDetailsOnPhpunitNotices="true" displayDetailsOnTestsThatTriggerDeprecations="true" displayDetailsOnTestsThatTriggerNotices="true" displayDetailsOnTestsThatTriggerWarnings="true" failOnDeprecation="true" failOnEmptyTestSuite="true" failOnNotice="true" failOnPhpunitDeprecation="true" failOnPhpunitNotice="true" failOnPhpunitWarning="true" failOnRisky="true" failOnWarning="true">
+  <testsuites>
+    <testsuite name="default">
+      <directory suffix="Test.php">tests</directory>
+    </testsuite>
+  </testsuites>
+  <source ignoreIndirectDeprecations="true">
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+  </source>
 </phpunit>
