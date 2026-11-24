@@ -2,10 +2,7 @@
 
 SporoPay is a redirect payment: your server never talks to the bank. The customer's browser carries a signed request to Slovenská sporiteľňa and a signed answer back. The gateway builds the first and verifies the second.
 
-<figure class="ot-diagram">
-  <img class="light-only" src="/diagrams/flow-light.svg" alt="Sequence: the customer pays in the shop; purchase() answers with a redirect to SporoPay carrying the signed fields in the query string; the customer pays in internet banking; SporoPay redirects the browser to the return URL with every field and SIGN2; completePurchase() verifies the signature, the variable symbol, the amount and the currency" width="760" height="512">
-  <img class="dark-only" src="/diagrams/flow-dark.svg" alt="Sequence: the customer pays in the shop; purchase() answers with a redirect to SporoPay carrying the signed fields in the query string; the customer pays in internet banking; SporoPay redirects the browser to the return URL with every field and SIGN2; completePurchase() verifies the signature, the variable symbol, the amount and the currency" width="760" height="512">
-</figure>
+<Diagram name="flow" :width="760" :height="512" alt="Sequence: the customer pays in the shop; purchase() answers with a redirect to SporoPay carrying the signed fields in the query string; the customer pays in internet banking; SporoPay redirects the browser to the return URL with every field and SIGN2; completePurchase() verifies the signature, the variable symbol, the amount and the currency" />
 
 ## Step by step
 
