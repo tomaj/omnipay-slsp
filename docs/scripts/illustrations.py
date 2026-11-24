@@ -4,7 +4,7 @@
 Each drawing exists once, with colour tokens; the light and dark files only swap the palette. The hero and the
 diagrams also exist in Slovak: the same drawing with the labels from STRINGS, written with a -sk suffix
 (illustrations/hero-sk-light.svg, diagrams/flow-sk-dark.svg) for the pages under docs/sk/. Run it after a change,
-then `node scripts/og-image.mjs` for the PNG icons and og.png (or `npm run images` for both).
+then `node scripts/og-image.mjs` for the PNG icons, og.png and og-sk.png (or `npm run images` for both).
 
 The omnipay-* packages and payment-simulator share the mark: a rounded square in the bank's primary colour with a
 payment card in its accent colour, a magnetic stripe and a check mark cut out of it. Slovenská sporiteľňa is blue and
@@ -142,10 +142,18 @@ def hero(c: dict[str, str], t: dict[str, str] = STRINGS["en"]) -> str:
 """
 
 
-def og(c: dict[str, str]) -> str:
-    """The 1200 × 630 social card."""
+# The social card tagline per language: og.svg (English) and og-sk.svg (pages under docs/sk/).
+OG = {
+    "en": {"label": "SporoPay for Omnipay", "line1": "SporoPay for Omnipay:", "line2": "3DES-signed payments, verified returns"},
+    "sk": {"label": "SporoPay pre Omnipay", "line1": "SporoPay pre Omnipay:", "line2": "platby podpísané 3DES, overené návraty"},
+}
+
+
+def og(c: dict[str, str], lang: str = "en") -> str:
+    """The 1200 × 630 social card, in English or Slovak."""
     mark = MARK.format(**c)
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="{NAME}: SporoPay for Omnipay">
+    t = OG[lang]
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="{NAME}: {t['label']}">
   <rect width="1200" height="630" fill="{c['bg']}"/>
   <rect x="0" y="0" width="1200" height="14" fill="{c['square']}"/>
   <rect x="0" y="14" width="1200" height="6" fill="{c['accent']}"/>
@@ -153,11 +161,11 @@ def og(c: dict[str, str]) -> str:
   {mark}
   </g>
   <text x="80" y="370" {FONT} font-size="84" font-weight="800" fill="{c['ink']}">{NAME}</text>
-  <text x="80" y="432" {FONT} font-size="34" fill="{c['muted']}">SporoPay for Omnipay:</text>
-  <text x="80" y="476" {FONT} font-size="34" fill="{c['muted']}">3DES-signed payments, verified returns</text>
+  <text x="80" y="432" {FONT} font-size="34" fill="{c['muted']}">{t['line1']}</text>
+  <text x="80" y="476" {FONT} font-size="34" fill="{c['muted']}">{t['line2']}</text>
   <text x="80" y="566" {MONO} font-size="26" fill="{c['ink']}">composer require tomaj/omnipay-slsp</text>
   <g transform="translate(700 70) scale(0.95)">
-    {hero(c).split('</defs>', 1)[1].rsplit('</svg>', 1)[0]}
+    {hero(c, STRINGS[lang]).split('</defs>', 1)[1].rsplit('</svg>', 1)[0]}
   </g>
   <defs>
     {arrow_marker(c)}
@@ -211,12 +219,12 @@ DIAGRAMS: dict[str, dict[str, tuple]] = {"en": {
         ["Customer's browser", "Your shop", "SporoPay"],
         [
             (0, 1, "Pay 10.00 €", "the order gets vs 2024000123"),
-            (1, 0, "302 to SporoPay", "purchase(): pu_* suma mena vs ss url param sign1"),
+            (1, 0, "302 to SporoPay", "purchase(): pu_* suma vs … sign1"),
             (0, 2, "GET epayment.xml?…", "the signed query string"),
             (2, None, "the customer pays", "internet banking: sign in, confirm"),
             (2, 0, "302 to url", "u_* pu_* suma mena vs ss … result real SIGN2"),
             (0, 1, "GET /return?…", "the bank's signed answer"),
-            (1, None, "completePurchase()", "SIGN2, vs, suma, mena (ss), then isSuccessful()"),
+            (1, None, "completePurchase()", "SIGN2, vs, suma, then isSuccessful()"),
         ],
     ),
 }, "sk": {
@@ -226,7 +234,7 @@ DIAGRAMS: dict[str, dict[str, tuple]] = {"en": {
         ["Prehliadač zákazníka", "Váš e-shop", "SporoPay"],
         [
             (0, 1, "Zaplatiť 10,00 €", "objednávka dostane vs 2024000123"),
-            (1, 0, "302 na SporoPay", "purchase(): pu_* suma mena vs ss url param sign1"),
+            (1, 0, "302 na SporoPay", "purchase(): pu_* suma vs … sign1"),
             (0, 2, "GET epayment.xml?…", "podpísaný query string"),
             (2, None, "zákazník zaplatí", "prihlási sa a potvrdí platbu"),
             (2, 0, "302 na url", "u_* pu_* suma mena vs ss … result real SIGN2"),
@@ -248,6 +256,7 @@ def main() -> None:
     write(PUBLIC / "logo-dark.svg", logo(DARK))
     write(PUBLIC / "favicon.svg", logo(LIGHT))
     write(PUBLIC / "og.svg", og(LIGHT))
+    write(PUBLIC / "og-sk.svg", og(LIGHT, "sk"))
     for lang, strings in STRINGS.items():
         suffix = "" if lang == "en" else f"-{lang}"
         write(PUBLIC / "illustrations" / f"hero{suffix}-light.svg", hero(LIGHT, strings))

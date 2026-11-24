@@ -20,7 +20,7 @@
   <text x="253" y="126" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#a1a1aa" text-anchor="middle">the order gets vs 2024000123</text>
   <path d="M376 192H133" stroke="#8dbbff" stroke-width="2.2" marker-end="url(#arrow)"/>
   <text x="253" y="168" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" font-weight="700" fill="#f4f4f5" text-anchor="middle">2. 302 to SporoPay</text>
-  <text x="253" y="184" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#a1a1aa" text-anchor="middle">purchase(): pu_* suma mena vs ss url param sign1</text>
+  <text x="253" y="184" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#a1a1aa" text-anchor="middle">purchase(): pu_* suma vs … sign1</text>
   <path d="M131 250H627" stroke="#8dbbff" stroke-width="2.2" marker-end="url(#arrow)"/>
   <text x="380" y="226" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" font-weight="700" fill="#f4f4f5" text-anchor="middle">3. GET epayment.xml?…</text>
   <text x="380" y="242" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#a1a1aa" text-anchor="middle">the signed query string</text>
@@ -35,5 +35,5 @@
   <text x="253" y="416" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#a1a1aa" text-anchor="middle">the bank's signed answer</text>
   <rect x="268" y="442" width="224" height="48" rx="9" fill="#11261a" stroke="#4ade80" stroke-width="1.3"/>
   <text x="380" y="462" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" font-weight="700" fill="#f4f4f5" text-anchor="middle">7. completePurchase()</text>
-  <text x="380" y="479" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#a1a1aa" text-anchor="middle">SIGN2, vs, suma, mena (ss), then isSuccessful()</text>
+  <text x="380" y="479" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#a1a1aa" text-anchor="middle">SIGN2, vs, suma, then isSuccessful()</text>
 </svg>
