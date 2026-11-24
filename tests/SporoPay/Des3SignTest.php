@@ -69,4 +69,46 @@ final class Des3SignTest extends TestCase
 
         new Des3Sign()->sign(self::PURCHASE, $secret);
     }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function emptySecrets(): iterable
+    {
+        yield 'empty' => [''];
+        yield 'spaces' => ['   '];
+        yield 'newline' => ["\n"];
+        yield 'tab and CRLF' => ["\t\r\n"];
+    }
+
+    #[DataProvider('emptySecrets')]
+    public function testEmptySecretThrows(string $secret): void
+    {
+        // OpenSSL pads a short key with zero bytes: 3.x signed with an all-zero key, e.g.
+        // 'hILtDUxp/FNlaUrHmfzF7ZTY9+JSjzwQ' for PURCHASE (openssl enc -des-ede3-cbc -K 00...00)
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageIs('Shared secret must not be empty');
+
+        new Des3Sign()->sign(self::PURCHASE, $secret);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function wrongKeyLengths(): iterable
+    {
+        foreach ([1, 8, 15, 17, 23, 25, 32] as $length) {
+            yield "{$length} bytes" => [base64_encode(str_repeat("\x5A", $length))];
+        }
+        yield '8 zero bytes' => ['AAAAAAAAAAA='];
+    }
+
+    #[DataProvider('wrongKeyLengths')]
+    public function testWrongKeyLengthThrows(string $secret): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageIs('Shared secret must be a 16- or 24-byte 3DES key');
+
+        new Des3Sign()->sign(self::PURCHASE, $secret);
+    }
 }

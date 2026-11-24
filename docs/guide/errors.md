@@ -8,7 +8,7 @@ The gateway reports problems with exceptions; a payment that did not go through 
 |---|---|---|
 | `Omnipay\Common\Exception\InvalidRequestException` | `purchase()->send()`, `getData()` | a required parameter is `null` (`The pu_predcislo parameter is required`, `... pu_cislo ...`, `... vs ...`, `... ss ...`, `... rurl ...`, `... param ...`, `... amount ...`), an invalid amount (`Amount precision is too high for currency.`, `A negative amount is not allowed.`), `sendData()` called with something else than an array (`Purchase data must be an array`) |
 | `Omnipay\Common\Exception\InvalidRequestException` | `completePurchase()->send()`, `getData()` | `The vs parameter is required`, `The amount parameter is required`, `incorect signature`, `Variable symbol mismatch`, `Amount mismatch`, `Currency mismatch`, `Specific symbol mismatch` ([the checks](./complete-purchase#the-checks)) |
-| `Omnipay\SporoPay\Exception\InvalidArgumentException` | `Des3Sign::sign()`, so both `send()` | `Shared secret must be base64 encoded` |
+| `Omnipay\SporoPay\Exception\InvalidArgumentException` | `Des3Sign::sign()`, so both `send()` | `Shared secret must not be empty`, `Shared secret must be base64 encoded`, `Shared secret must be a 16- or 24-byte 3DES key` |
 | `Omnipay\SporoPay\Exception\RuntimeException` | `Des3Sign::sign()` | `Unable to compute the DES-EDE3-CBC signature: ...` (OpenSSL failed) |
 | `Omnipay\SporoPay\Exception\LogicException` | `PurchaseResponse::getRedirectUrl()` | the response was created for another request than a `PurchaseRequest` (a programming error) |
 | `Omnipay\Common\Exception\RuntimeException` | Omnipay, `initialize()` and setters | the request was changed after `send()` (`Request cannot be modified after it has been sent!`) |

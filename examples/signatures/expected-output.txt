@@ -14,7 +14,9 @@ sign1 with a 24-byte key
   openssl EtY1FyARRhqMziz30oC1r3Alj/smTcBP
   equal   true
 
-shared secrets that are not strict base64:
+shared secrets that are not strict base64, empty or not a 16- or 24-byte key:
   "Z3qY08EpvLlAAoMZdnyUdQ=="   Omnipay\SporoPay\Exception\InvalidArgumentException: Shared secret must be base64 encoded
   Z3qY08EpvLlAAoMZdnyUdQ       accepted, G/r4RvZaLIXZj75QOQstbMEqhZkCkHHj
   Z3qY08Ep-LlAAoMZdnyUdQ==     Omnipay\SporoPay\Exception\InvalidArgumentException: Shared secret must be base64 encoded
+  ''                           Omnipay\SporoPay\Exception\InvalidArgumentException: Shared secret must not be empty
+  MTIzNDU2Nzg=                 Omnipay\SporoPay\Exception\InvalidArgumentException: Shared secret must be a 16- or 24-byte 3DES key

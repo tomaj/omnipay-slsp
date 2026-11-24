@@ -5,7 +5,7 @@ omnipay-slsp signs your payment requests and verifies the bank's returns. This p
 ## The shared secret
 
 - The `sharedSecret` signs requests and verifies returns. Anyone who has it can forge an `OK` return. Keep it in the environment or a secret store; do not commit, log or send it to the browser.
-- The gateway does not check that the secret is set (see [Configuration](./configuration#gateway-parameters)): fail when the application starts if it is missing.
+- An empty secret, or one that does not decode to a 16- or 24-byte key, is rejected: `purchase()` and `completePurchase()` throw `Exception\InvalidArgumentException` instead of signing with a key that OpenSSL pads with zero bytes (an empty secret would be an all-zero key anyone can compute). Still check the configuration when the application starts, so a missing secret fails the deployment, not the first payment.
 - The simulator's key (`Z3qY08EpvLlAAoMZdnyUdQ==`) is public. Use it only with test mode.
 
 ## What `completePurchase()` guarantees

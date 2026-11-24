@@ -6,6 +6,7 @@ namespace Omnipay\Tests\SporoPay;
 
 use Omnipay\Common\Exception\InvalidRequestException;
 use Omnipay\Common\Http\ClientInterface;
+use Omnipay\SporoPay\Exception\InvalidArgumentException;
 use Omnipay\SporoPay\Gateway;
 use Omnipay\SporoPay\Message\CompletePurchaseResponse;
 use Omnipay\SporoPay\Sign\Des3Sign;
@@ -162,6 +163,42 @@ final class GatewayTest extends TestCase
         $this->gateway->setSharedSecret('ABEiM0RVZneImaq7zN3u/wARIjNEVWZ3');
 
         $this->expectException(InvalidRequestException::class);
+
+        $this->complete($query);
+    }
+
+    public function testPurchaseWithoutSharedSecretThrows(): void
+    {
+        // the gateway's default secret is '': it must not sign with an all-zero key
+        $gateway = new Gateway(self::createStub(ClientInterface::class), new Request());
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageIs('Shared secret must not be empty');
+
+        $gateway->purchase($this->purchaseParameters())->send();
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function unusableSecrets(): iterable
+    {
+        yield 'gateway default' => ['', 'Shared secret must not be empty'];
+        yield 'whitespace' => [" \n", 'Shared secret must not be empty'];
+        yield '8 zero bytes' => ['AAAAAAAAAAA=', 'Shared secret must be a 16- or 24-byte 3DES key'];
+    }
+
+    #[DataProvider('unusableSecrets')]
+    public function testCompletePurchaseRejectsReturnSignedWithAllZeroKey(string $secret, string $message): void
+    {
+        // SIGN2 of the OK notification with an all-zero 3DES key, computed with
+        // openssl enc -des-ede3-cbc -K 000...000 -iv 0000000000000000 -nopad: what 3.x accepted without a secret
+        $query = $this->notification('OK');
+        $query['SIGN2'] = '1swETRC1FAHR/WVIL4CsSMSaarfshPHL';
+        $this->gateway->setSharedSecret($secret);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageIs($message);
 
         $this->complete($query);
     }
