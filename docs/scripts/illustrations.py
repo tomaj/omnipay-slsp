@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Writes the logo, favicon, hero illustration, social card and diagram SVGs into docs/public.
 
-Each drawing exists once, with colour tokens; the light and dark files only swap the palette. Run it after a change,
+Each drawing exists once, with colour tokens; the light and dark files only swap the palette. The hero and the
+diagrams also exist in Slovak: the same drawing with the labels from STRINGS, written with a -sk suffix
+(illustrations/hero-sk-light.svg, diagrams/flow-sk-dark.svg) for the pages under docs/sk/. Run it after a change,
 then `node scripts/og-image.mjs` for the PNG icons and og.png (or `npm run images` for both).
 
 The omnipay-* packages and payment-simulator share the mark: a rounded square in the bank's primary colour with a
@@ -58,11 +60,40 @@ def arrow_marker(c: dict[str, str]) -> str:
     </marker>"""
 
 
-def hero(c: dict[str, str]) -> str:
+# Labels per language. English files keep their names; Slovak files get a -sk suffix.
+STRINGS: dict[str, dict[str, str]] = {
+    "en": {
+        "hero_title": "SporoPay payment flow",
+        "hero_desc": "The shop redirects the customer to SporoPay with a signed URL, the bank sends the customer back with a signed result, and completePurchase() verifies the signature, the variable symbol and the amount before the order is paid.",
+        "order": "Order 2024000123",
+        "amount": "10.00 €",
+        "pay": "Pay with SporoPay",
+        "pay_size": "15",
+        "signed_redirect": "signed redirect",
+        "confirm": "Confirm payment",
+        "verified": "SIGN2, vs and suma verified",
+        "paid": "order 2024000123 paid",
+    },
+    "sk": {
+        "hero_title": "Platba cez SporoPay",
+        "hero_desc": "E-shop presmeruje zákazníka do SporoPay s podpísanou URL, banka ho vráti späť s podpísaným výsledkom a completePurchase() overí podpis, variabilný symbol a sumu skôr, než sa objednávka označí ako zaplatená.",
+        "order": "Objednávka 2024000123",
+        "amount": "10,00 €",
+        "pay": "Zaplatiť cez SporoPay",
+        "pay_size": "13.5",
+        "signed_redirect": "podpísaná URL",
+        "confirm": "Potvrdiť platbu",
+        "verified": "SIGN2, vs a suma overené",
+        "paid": "objednávka zaplatená",
+    },
+}
+
+
+def hero(c: dict[str, str], t: dict[str, str] = STRINGS["en"]) -> str:
     """The flow: the shop redirects with a signed URL, the bank sends the customer back, completePurchase() verifies."""
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 440" width="520" height="440" role="img" aria-labelledby="t d">
-  <title id="t">SporoPay payment flow</title>
-  <desc id="d">The shop redirects the customer to SporoPay with a signed URL, the bank sends the customer back with a signed result, and completePurchase() verifies the signature, the variable symbol and the amount before the order is paid.</desc>
+  <title id="t">{t['hero_title']}</title>
+  <desc id="d">{t['hero_desc']}</desc>
   <defs>
     {arrow_marker(c)}
   </defs>
@@ -72,15 +103,15 @@ def hero(c: dict[str, str]) -> str:
   <path d="M16 34a14 14 0 0 1 14-14h204a14 14 0 0 1 14 14v12H16z" fill="{c['bar']}"/>
   <circle cx="34" cy="34" r="4" fill="{c['line']}"/><circle cx="48" cy="34" r="4" fill="{c['line']}"/><circle cx="62" cy="34" r="4" fill="{c['line']}"/>
   <text x="80" y="38" {FONT} font-size="12" fill="{c['muted']}">shop.example/checkout</text>
-  <text x="36" y="78" {FONT} font-size="14" fill="{c['muted']}">Order 2024000123</text>
-  <text x="36" y="112" {FONT} font-size="28" font-weight="700" fill="{c['ink']}">10.00 €</text>
+  <text x="36" y="78" {FONT} font-size="14" fill="{c['muted']}">{t['order']}</text>
+  <text x="36" y="112" {FONT} font-size="28" font-weight="700" fill="{c['ink']}">{t['amount']}</text>
   <rect x="36" y="134" width="176" height="40" rx="9" fill="{c['accent']}"/>
-  <text x="124" y="159" {FONT} font-size="15" font-weight="700" fill="{c['on_accent']}" text-anchor="middle">Pay with SporoPay</text>
+  <text x="124" y="159" {FONT} font-size="{t['pay_size']}" font-weight="700" fill="{c['on_accent']}" text-anchor="middle">{t['pay']}</text>
 
   <!-- signed redirect -->
   <path d="M252 72C350 72 392 78 392 112" fill="none" stroke="{c['arrow']}" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
   <text x="268" y="58" {MONO} font-size="12" fill="{c['ink']}">purchase()</text>
-  <text x="268" y="96" {FONT} font-size="11" fill="{c['muted']}">signed redirect</text>
+  <text x="268" y="96" {FONT} font-size="11" fill="{c['muted']}">{t['signed_redirect']}</text>
 
   <!-- internet banking -->
   <rect x="272" y="120" width="232" height="190" rx="14" fill="{c['panel']}" stroke="{c['line']}" stroke-width="1.5"/>
@@ -93,7 +124,7 @@ def hero(c: dict[str, str]) -> str:
   <text x="302" y="244" {MONO} font-size="11" fill="{c['muted']}">sign1</text>
   {check(458, 236, c['ok'], 2.2)}
   <rect x="290" y="264" width="196" height="32" rx="8" fill="{c['ink']}"/>
-  <text x="388" y="285" {FONT} font-size="13" font-weight="600" fill="{c['panel']}" text-anchor="middle">Confirm payment</text>
+  <text x="388" y="285" {FONT} font-size="13" font-weight="600" fill="{c['panel']}" text-anchor="middle">{t['confirm']}</text>
 
   <!-- signed return -->
   <path d="M392 314C392 364 352 370 272 370" fill="none" stroke="{c['arrow']}" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
@@ -105,8 +136,8 @@ def hero(c: dict[str, str]) -> str:
   <circle cx="56" cy="370" r="22" fill="{c['ok']}"/>
   {check(46, 370, c['ok_soft'], 3.5)}
   <text x="92" y="354" {MONO} font-size="13" font-weight="700" fill="{c['ink']}">completePurchase()</text>
-  <text x="92" y="378" {FONT} font-size="12" fill="{c['muted']}">SIGN2, vs and suma verified</text>
-  <text x="92" y="402" {FONT} font-size="13" font-weight="700" fill="{c['ok']}">order 2024000123 paid</text>
+  <text x="92" y="378" {FONT} font-size="12" fill="{c['muted']}">{t['verified']}</text>
+  <text x="92" y="402" {FONT} font-size="13" font-weight="700" fill="{c['ok']}">{t['paid']}</text>
 </svg>
 """
 
@@ -173,7 +204,7 @@ def sequence(c: dict[str, str], title: str, desc: str, lanes: list[str], steps: 
     return "\n".join(out)
 
 
-DIAGRAMS = {
+DIAGRAMS: dict[str, dict[str, tuple]] = {"en": {
     "flow": (
         "SporoPay payment flow",
         "The customer pays in the shop, purchase() redirects the browser to SporoPay with the signed fields in the query string, the customer confirms the payment in internet banking, SporoPay redirects the browser back to the return URL with every field signed by SIGN2, and completePurchase() verifies the signature, the variable symbol, the amount and the currency before the shop marks the order paid.",
@@ -188,7 +219,22 @@ DIAGRAMS = {
             (1, None, "completePurchase()", "SIGN2, vs, suma, mena (ss), then isSuccessful()"),
         ],
     ),
-}
+}, "sk": {
+    "flow": (
+        "Priebeh platby cez SporoPay",
+        "Zákazník zaplatí v e-shope, purchase() presmeruje prehliadač do SporoPay s podpísanými poľami v query stringu, zákazník potvrdí platbu v internet bankingu, SporoPay presmeruje prehliadač späť na návratovú URL so všetkými poľami podpísanými cez SIGN2 a completePurchase() overí podpis, variabilný symbol, sumu a menu skôr, než e-shop označí objednávku ako zaplatenú.",
+        ["Prehliadač zákazníka", "Váš e-shop", "SporoPay"],
+        [
+            (0, 1, "Zaplatiť 10,00 €", "objednávka dostane vs 2024000123"),
+            (1, 0, "302 na SporoPay", "purchase(): pu_* suma mena vs ss url param sign1"),
+            (0, 2, "GET epayment.xml?…", "podpísaný query string"),
+            (2, None, "zákazník zaplatí", "prihlási sa a potvrdí platbu"),
+            (2, 0, "302 na url", "u_* pu_* suma mena vs ss … result real SIGN2"),
+            (0, 1, "GET /return?…", "podpísaná odpoveď banky"),
+            (1, None, "completePurchase()", "overí SIGN2, vs, sumu, menu a ss"),
+        ],
+    ),
+}}
 
 
 def write(path: Path, text: str) -> None:
@@ -201,12 +247,14 @@ def main() -> None:
     write(PUBLIC / "logo.svg", logo(LIGHT))
     write(PUBLIC / "logo-dark.svg", logo(DARK))
     write(PUBLIC / "favicon.svg", logo(LIGHT))
-    write(PUBLIC / "illustrations" / "hero-light.svg", hero(LIGHT))
-    write(PUBLIC / "illustrations" / "hero-dark.svg", hero(DARK))
     write(PUBLIC / "og.svg", og(LIGHT))
-    for name, (title, desc, lanes, steps) in DIAGRAMS.items():
-        write(PUBLIC / "diagrams" / f"{name}-light.svg", sequence(LIGHT, title, desc, lanes, steps))
-        write(PUBLIC / "diagrams" / f"{name}-dark.svg", sequence(DARK, title, desc, lanes, steps))
+    for lang, strings in STRINGS.items():
+        suffix = "" if lang == "en" else f"-{lang}"
+        write(PUBLIC / "illustrations" / f"hero{suffix}-light.svg", hero(LIGHT, strings))
+        write(PUBLIC / "illustrations" / f"hero{suffix}-dark.svg", hero(DARK, strings))
+        for name, (title, desc, lanes, steps) in DIAGRAMS[lang].items():
+            write(PUBLIC / "diagrams" / f"{name}{suffix}-light.svg", sequence(LIGHT, title, desc, lanes, steps))
+            write(PUBLIC / "diagrams" / f"{name}{suffix}-dark.svg", sequence(DARK, title, desc, lanes, steps))
 
 
 if __name__ == "__main__":
