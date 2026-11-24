@@ -17,6 +17,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Changed
 
+* **BREAKING CHANGE**: `purchase()` requires the `amount` and throws `InvalidRequestException('The amount parameter is required')` without it, instead of signing a payment without `suma` that Slovenská sporiteľňa rejects after the redirect ([#20](https://github.com/tomaj/omnipay-slsp/issues/20)).
 * **BREAKING CHANGE**: Requires PHP 8.4 or newer (no PHP constraint before; Travis tested PHP 5.6 and 7.0) ([#6](https://github.com/tomaj/omnipay-slsp/pull/6), [#10](https://github.com/tomaj/omnipay-slsp/issues/10)).
 * **BREAKING CHANGE**: Requires `omnipay/common` ^3.2 (was ~3.0) ([#6](https://github.com/tomaj/omnipay-slsp/pull/6)).
 * **BREAKING CHANGE**: Parameter getters and setters are typed: getters return `?string`, setters take `?string` and return `static`; `Des3Sign::sign()` takes and returns `string`. Code that extends these classes must match the new signatures ([#6](https://github.com/tomaj/omnipay-slsp/pull/6)).

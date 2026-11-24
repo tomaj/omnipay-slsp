@@ -29,7 +29,7 @@ final class PurchaseRequest extends AbstractRequest
     #[\Override]
     public function getData(): array
     {
-        $this->validate('pu_predcislo', 'pu_cislo', 'vs', 'ss', 'rurl', 'param');
+        $this->validate('pu_predcislo', 'pu_cislo', 'vs', 'ss', 'rurl', 'param', 'amount');
         $data = [];
 
         $data['pu_predcislo'] = $this->getAccountNumberPrefix();

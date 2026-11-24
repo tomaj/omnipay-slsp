@@ -72,6 +72,17 @@ final class GatewayTest extends TestCase
         $this->gateway->purchase(['amount' => '5.80'])->send();
     }
 
+    public function testPurchaseRequiresAmount(): void
+    {
+        $parameters = $this->purchaseParameters();
+        unset($parameters['amount']);
+
+        $this->expectException(InvalidRequestException::class);
+        $this->expectExceptionMessageIs('The amount parameter is required');
+
+        $this->gateway->purchase($parameters)->send();
+    }
+
     public function testCompletePurchaseWithValidSignature(): void
     {
         $query = $this->signedNotification('OK');

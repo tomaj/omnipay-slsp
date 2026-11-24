@@ -31,7 +31,7 @@ Getters return `null` for a parameter that is not a string or an integer (an int
 |---|---|---|
 | `const string CURRENCY = 'EUR'` | | Sent as `mena` |
 | `const string BANK_CODE = '0900'` | | Sent as `pu_kbanky` |
-| `getData()` | `array<string, ?string>` | `pu_predcislo`, `pu_cislo`, `pu_kbanky`, `suma`, `mena`, `vs`, `ss`, `url`, `param`. Throws `InvalidRequestException` when `pu_predcislo`, `pu_cislo`, `vs`, `ss`, `rurl` or `param` is `null`, or the amount is invalid. |
+| `getData()` | `array<string, ?string>` | `pu_predcislo`, `pu_cislo`, `pu_kbanky`, `suma`, `mena`, `vs`, `ss`, `url`, `param`. Throws `InvalidRequestException` when `pu_predcislo`, `pu_cislo`, `vs`, `ss`, `rurl`, `param` or `amount` is `null`, or the amount is invalid. |
 | `send()` | `PurchaseResponse` | `sendData(getData())` |
 | `sendData(mixed $data)` | `PurchaseResponse` | Adds `sign1`. Throws `InvalidRequestException('Purchase data must be an array')`, and the exceptions of `Des3Sign::sign()`. |
 | `generateSignature(string $data)` | `string` | The 3DES signature of `$data` with `sharedSecret` |

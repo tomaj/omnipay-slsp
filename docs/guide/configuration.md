@@ -47,7 +47,7 @@ The gateway's default `sharedSecret` is an empty string, and nothing checks that
 | `accountNumberPrefix` | `setAccountNumberPrefix()` | `pu_predcislo` | yes | Prefix of your account at Slovenská sporiteľňa (`000000` when it has none). |
 | `accountNumber` | `setAccountNumber()` | `pu_cislo` | yes | Your account number. |
 | | | `pu_kbanky` | | Always `0900`, the bank code of Slovenská sporiteľňa (`PurchaseRequest::BANK_CODE`). |
-| `amount` | `setAmount()` | `suma` | by the bank | Amount in euro. Omnipay formats it with two decimals: `'10'`, `10` and `'10.0'` are sent as `10.00`; more than two decimals throws `InvalidRequestException('Amount precision is too high for currency.')`, a negative amount `'A negative amount is not allowed.'`. `purchase()` does not check that it is set. See the [Amount formats example](../examples/amount-formats). |
+| `amount` | `setAmount()` | `suma` | yes | Amount in euro. Omnipay formats it with two decimals: `'10'`, `10` and `'10.0'` are sent as `10.00`; more than two decimals throws `InvalidRequestException('Amount precision is too high for currency.')`, a negative amount `'A negative amount is not allowed.'`. See the [Amount formats example](../examples/amount-formats). |
 | | | `mena` | | Always `EUR` (`PurchaseRequest::CURRENCY`). |
 | `vs` | `setVs()` | `vs` | yes | Variable symbol: identifies the order, up to 10 digits. Use a value unique per order. |
 | `ss` | `setSs()` | `ss` | yes | Specific symbol, up to 10 digits. |
@@ -55,7 +55,7 @@ The gateway's default `sharedSecret` is an empty string, and nothing checks that
 | `param` | `setParam()` | `param` | yes | Free text returned to you unchanged and signed in both directions, for example `order=2024000123`. |
 | `sharedSecret`, `testMode`, `testHost` | | | | Inherited from the gateway, can be overridden per request. |
 
-Every field is part of `sign1`, see [Signatures](./signatures). When a required parameter is `null`, `purchase()` throws `InvalidRequestException` with the name of the **sent** field: `The pu_predcislo parameter is required`, `The pu_cislo parameter is required`, `The vs parameter is required`, `The ss parameter is required`, `The rurl parameter is required`, `The param parameter is required`.
+Every field is part of `sign1`, see [Signatures](./signatures). When a required parameter is `null`, `purchase()` throws `InvalidRequestException` with the name of the **sent** field: `The pu_predcislo parameter is required`, `The pu_cislo parameter is required`, `The vs parameter is required`, `The ss parameter is required`, `The rurl parameter is required`, `The param parameter is required`, `The amount parameter is required`.
 
 The currency is not a parameter: SporoPay pays in euro. Omnipay's generic request parameters (`currency`, `description`, `transactionId`, `returnUrl`, ...) are accepted but not sent to the bank; use `rurl` for the return URL.
 

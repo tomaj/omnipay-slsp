@@ -14,7 +14,7 @@ Output (the [Payment redirect example](../examples/purchase-redirect)):
 
 | Exception | When |
 |---|---|
-| `InvalidRequestException('The pu_predcislo parameter is required')`, `... pu_cislo ...`, `... vs ...`, `... ss ...`, `... rurl ...`, `... param ...` | the parameter is `null` |
+| `InvalidRequestException('The pu_predcislo parameter is required')`, `... pu_cislo ...`, `... vs ...`, `... ss ...`, `... rurl ...`, `... param ...`, `... amount ...` | the parameter is `null` |
 | `InvalidRequestException('Amount precision is too high for currency.')` | `amount` has more than two decimals |
 | `InvalidRequestException('A negative amount is not allowed.')` | `amount` is negative |
 | `Exception\InvalidArgumentException('Shared secret must be base64 encoded')` | the shared secret is not strict base64 |
