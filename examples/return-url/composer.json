@@ -1,0 +1,14 @@
+{
+    "require": {
+        "php": ">=8.4",
+        "tomaj/omnipay-slsp": "dev-master",
+        "php-http/guzzle7-adapter": "^1.1"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
+    }
+}

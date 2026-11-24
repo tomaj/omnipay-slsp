@@ -14,3 +14,10 @@ parameters:
     checkMissingOverrideMethodAttribute: true
     checkUninitializedProperties: true
     reportUnmatchedIgnoredErrors: true
+    excludePaths:
+        - examples/*/vendor/*
+    ignoreErrors:
+        # an example loads the autoloader of its own Composer project (examples/<name>/vendor), see examples/ci/run.sh
+        -
+            identifier: require.fileNotFound
+            path: examples/*

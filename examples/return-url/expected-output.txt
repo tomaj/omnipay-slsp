@@ -1,0 +1,9 @@
+rejected by the bank:        200 not paid (NOK), order stays new
+result changed to OK:        400 rejected: incorect signature
+return of a 1.00 payment:    400 rejected: Amount mismatch
+return of another order:     400 rejected: Variable symbol mismatch
+paid in another currency:    400 rejected: Currency mismatch
+another specific symbol:     400 rejected: Specific symbol mismatch
+return URL opened directly:  400 rejected: incorect signature
+paid:                        200 paid 10.00 EUR, vs 2024000123, real=OK
+paid, page reloaded:         200 already paid

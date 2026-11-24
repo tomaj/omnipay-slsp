@@ -6,6 +6,7 @@
 
 SporoPay signs every field of the return (`SIGN2`), but 3.x only checked the signature, so a genuine success return of one order (or of a smaller amount) also completed another. 4.0 requires the variable symbol and amount of the order you are completing and compares them with the signed `vs` and `suma` (and `mena` with `EUR`):
 
+<!-- snippet: skip -->
 ```php
 // 3.x
 $response = $gateway->completePurchase()->send();
@@ -41,6 +42,7 @@ composer require tomaj/omnipay-slsp:^4.0
 
 Getters return `?string`, setters take `?string` and return `static`. Calling a setter with an `int` from a file with `declare(strict_types=1)` throws a `TypeError`; values passed through `purchase([...])` or `initialize()` are still converted.
 
+<!-- snippet: skip -->
 ```php
 // 3.x
 $request->setVs(2024000123);
@@ -67,6 +69,7 @@ $gateway->setSharedSecret('Z3qY08EpvLlAAoMZdnyUdQ==');
 
 `Gateway`, `PurchaseRequest`, `PurchaseResponse`, `CompletePurchaseRequest`, `CompletePurchaseResponse` and `Des3Sign` are `final` (`Des3Sign` is also `readonly`). Code that extended them must wrap them instead.
 
+<!-- snippet: skip -->
 ```php
 // 3.x
 class MyGateway extends \Omnipay\SporoPay\Gateway
@@ -103,6 +106,7 @@ Every exception the package throws itself implements `Omnipay\SporoPay\Exception
 
 Invalid requests and bank returns still throw Omnipay's `InvalidRequestException`.
 
+<!-- snippet: skip -->
 ```php
 // 4.0: one catch for everything the gateway throws
 try {
@@ -116,6 +120,8 @@ try {
 `CompletePurchaseRequest` reads the return fields from the Symfony request Omnipay passes to the gateway (`Request::createFromGlobals()` by default), not from `$_GET`. Plain PHP keeps working; in frameworks and long-running servers, pass the current request:
 
 ```php
+use Omnipay\Omnipay;
+
 // 3.x: worked only when $_GET was populated
 $gateway = Omnipay::create('SporoPay');
 

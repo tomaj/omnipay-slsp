@@ -22,11 +22,15 @@ CI runs PHP 8.4 (also with the lowest dependencies), 8.5 and 8.6 (coverage of at
 
 ## Documentation
 
-These pages are in `docs/` (VitePress). The code samples are imported from [`examples/`](https://github.com/tomaj/omnipay-slsp/tree/master/examples), which the test suite runs, so they cannot drift from the library.
+These pages are in `docs/` (VitePress). The longer code samples are imported from [`examples/`](https://github.com/tomaj/omnipay-slsp/tree/master/examples): each example is a Composer project with an `expected-output.txt`, run by the `Examples` workflow against the pull request's code and by `tests/SporoPay/ExamplesTest.php` on every supported PHP. Every other ```` ```php ```` block in the README, `UPGRADE-4.0.md` and `docs/` runs in `tests/SporoPay/DocsSnippetsTest.php`; a ```` ```text ```` block after `<!-- snippet: output -->` is its expected output, and `<!-- snippet: skip -->` before a block skips it (only for code that cannot run on its own, such as the 3.x side of an upgrade step).
 
 ```bash
 cd docs
 npm ci
 npm run docs:dev    # preview on http://localhost:5173/omnipay-slsp/
 npm run docs:links  # build and check every link
+npm run images      # re-render og.png and the PNG icons after changing the SVGs (needs Chrome)
+python3 scripts/check-svg.py
 ```
+
+Run one example like CI does: `examples/ci/run.sh return-url`.

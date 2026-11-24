@@ -1,0 +1,17 @@
+purchase(): amount → suma
+  '10'         '10.00'
+  10           '10.00'
+  '10.0'       '10.00'
+  10.5         '10.50'
+  '0.99'       '0.99'
+  '1000000'    '1000000.00'
+  '9.999'      InvalidRequestException: Amount precision is too high for currency.
+  '-5'         InvalidRequestException: A negative amount is not allowed.
+
+completePurchase(): the order's amount against the returned suma
+  amount '10'     suma 10.00  paid 10.00
+  amount 10.0     suma 10.00  paid 10.00
+  amount '10.5'   suma 10.50  paid 10.50
+  amount '10.50'  suma 10.5   rejected: Amount mismatch
+  amount '10.00'  suma 1.00   rejected: Amount mismatch
+  amount NULL     suma 10.00  rejected: The amount parameter is required
