@@ -6,7 +6,7 @@ The gateway reports problems with exceptions; a payment that did not go through 
 
 | Exception | Thrown by | When |
 |---|---|---|
-| `Omnipay\Common\Exception\InvalidRequestException` | `purchase()->send()`, `getData()` | a required parameter is `null` (`The pu_predcislo parameter is required`, `... pu_cislo ...`, `... vs ...`, `... ss ...`, `... rurl ...`, `... param ...`), an invalid amount (`Amount precision is too high for currency.`, `A negative amount is not allowed.`), `sendData()` called with something else than an array (`Purchase data must be an array`) |
+| `Omnipay\Common\Exception\InvalidRequestException` | `purchase()->send()`, `getData()` | a required parameter is `null` (`The pu_predcislo parameter is required`, `... pu_cislo ...`, `... vs ...`, `... ss ...`, `... rurl ...`, `... param ...`, `... amount ...`), an invalid amount (`Amount precision is too high for currency.`, `A negative amount is not allowed.`), `sendData()` called with something else than an array (`Purchase data must be an array`) |
 | `Omnipay\Common\Exception\InvalidRequestException` | `completePurchase()->send()`, `getData()` | `The vs parameter is required`, `The amount parameter is required`, `incorect signature`, `Variable symbol mismatch`, `Amount mismatch`, `Currency mismatch`, `Specific symbol mismatch` ([the checks](./complete-purchase#the-checks)) |
 | `Omnipay\SporoPay\Exception\InvalidArgumentException` | `Des3Sign::sign()`, so both `send()` | `Shared secret must be base64 encoded` |
 | `Omnipay\SporoPay\Exception\RuntimeException` | `Des3Sign::sign()` | `Unable to compute the DES-EDE3-CBC signature: ...` (OpenSSL failed) |
@@ -48,4 +48,4 @@ Every `InvalidRequestException` from `completePurchase()` means the same thing f
 
 ## In the checkout
 
-Exceptions from `purchase()` are configuration or programming errors: a missing return URL or symbol, an amount with three decimals, a malformed secret. Let them reach your error handler, or validate the order before you call the gateway.
+Exceptions from `purchase()` are configuration or programming errors: a missing return URL, amount or symbol, an amount with three decimals, a malformed secret. Let them reach your error handler, or validate the order before you call the gateway.
