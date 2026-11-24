@@ -65,6 +65,19 @@ $gateway->setSharedSecret('"Z3qY08EpvLlAAoMZdnyUdQ=="');
 $gateway->setSharedSecret('Z3qY08EpvLlAAoMZdnyUdQ==');
 ```
 
+## An empty or short shared secret is rejected
+
+3.x signed with whatever `sharedSecret` was set. OpenSSL pads a key shorter than 24 bytes with zero bytes, so the gateway's default `''` (a missing environment variable, for example) signed payments and accepted returns with an all-zero 3DES key that anyone can compute. 4.0 throws `Omnipay\SporoPay\Exception\InvalidArgumentException` from `purchase()` and `completePurchase()` when the secret is empty or only whitespace (`Shared secret must not be empty`) or does not decode to a 16- or 24-byte key (`Shared secret must be a 16- or 24-byte 3DES key`). Keys from Slovenská sporiteľňa have 16 or 24 bytes, so their signatures are unchanged.
+
+<!-- snippet: skip -->
+```php
+// 3.x: signed with an all-zero key when SPOROPAY_SHARED_SECRET was not set
+$gateway->setSharedSecret((string) getenv('SPOROPAY_SHARED_SECRET'));
+
+// 4.0: the gateway throws on the first payment; better fail when the application starts
+$gateway->setSharedSecret(getenv('SPOROPAY_SHARED_SECRET') ?: throw new RuntimeException('SPOROPAY_SHARED_SECRET is not set'));
+```
+
 ## Final classes
 
 `Gateway`, `PurchaseRequest`, `PurchaseResponse`, `CompletePurchaseRequest`, `CompletePurchaseResponse` and `Des3Sign` are `final` (`Des3Sign` is also `readonly`). Code that extended them must wrap them instead.

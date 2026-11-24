@@ -17,7 +17,9 @@ Output (the [Payment redirect example](../examples/purchase-redirect)):
 | `InvalidRequestException('The pu_predcislo parameter is required')`, `... pu_cislo ...`, `... vs ...`, `... ss ...`, `... rurl ...`, `... param ...`, `... amount ...` | the parameter is `null` |
 | `InvalidRequestException('Amount precision is too high for currency.')` | `amount` has more than two decimals |
 | `InvalidRequestException('A negative amount is not allowed.')` | `amount` is negative |
+| `Exception\InvalidArgumentException('Shared secret must not be empty')` | the shared secret is empty or only whitespace (the gateway's default is `''`) |
 | `Exception\InvalidArgumentException('Shared secret must be base64 encoded')` | the shared secret is not strict base64 |
+| `Exception\InvalidArgumentException('Shared secret must be a 16- or 24-byte 3DES key')` | the decoded shared secret has another length |
 | `Exception\RuntimeException('Unable to compute the DES-EDE3-CBC signature: ...')` | OpenSSL failed to encrypt |
 
 `getData()` returns the fields without the signature, in this order: `pu_predcislo`, `pu_cislo`, `pu_kbanky`, `suma`, `mena`, `vs`, `ss`, `url`, `param`. `sendData($data)` adds `sign1`.

@@ -52,7 +52,7 @@ echo new Des3Sign()->sign('000000;0013662162;0900;10.00;EUR;2024000123;000000000
 U8BhKPlggZUOhAmr5OTr61Cj8p0cW9TF
 ```
 
-`Des3Sign::sign(string $input, string $secret): string` throws `Exception\InvalidArgumentException('Shared secret must be base64 encoded')` when the secret is not strict base64 (whitespace and a missing `=` padding are accepted; quotes, `-` or `_` are not) and `Exception\RuntimeException('Unable to compute the DES-EDE3-CBC signature: ...')` when OpenSSL cannot encrypt. `PurchaseRequest::generateSignature(string $data)` calls it with the request's `sharedSecret`.
+`Des3Sign::sign(string $input, string $secret): string` throws `Exception\InvalidArgumentException('Shared secret must not be empty')` for an empty or whitespace-only secret, `Exception\InvalidArgumentException('Shared secret must be a 16- or 24-byte 3DES key')` when the decoded key has another length, `Exception\InvalidArgumentException('Shared secret must be base64 encoded')` when the secret is not strict base64 (whitespace and a missing `=` padding are accepted; quotes, `-` or `_` are not) and `Exception\RuntimeException('Unable to compute the DES-EDE3-CBC signature: ...')` when OpenSSL cannot encrypt. `PurchaseRequest::generateSignature(string $data)` calls it with the request's `sharedSecret`.
 
 ::: tip OpenSSL 3
 Triple DES (DES-EDE3-CBC) is part of OpenSSL 3's default provider; the legacy provider is not needed.

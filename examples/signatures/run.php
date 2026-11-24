@@ -62,12 +62,12 @@ foreach ($cases as $name => [$data, $secret]) {
     echo "{$name}\n  {$data}\n  library {$library}\n  openssl {$openssl}\n  equal   " . var_export($library === $openssl, true) . "\n";
 }
 
-echo "\nshared secrets that are not strict base64:\n";
-foreach (['"Z3qY08EpvLlAAoMZdnyUdQ=="', 'Z3qY08EpvLlAAoMZdnyUdQ', 'Z3qY08Ep-LlAAoMZdnyUdQ=='] as $secret) {
+echo "\nshared secrets that are not strict base64, empty or not a 16- or 24-byte key:\n";
+foreach (['"Z3qY08EpvLlAAoMZdnyUdQ=="', 'Z3qY08EpvLlAAoMZdnyUdQ', 'Z3qY08Ep-LlAAoMZdnyUdQ==', '', 'MTIzNDU2Nzg='] as $secret) {
     try {
         $result = 'accepted, ' . $sign->sign('abc', $secret);
     } catch (InvalidArgumentException $e) {
         $result = $e::class . ': ' . $e->getMessage();
     }
-    printf("  %-28s %s\n", $secret, $result);
+    printf("  %-28s %s\n", $secret === '' ? "''" : $secret, $result);
 }

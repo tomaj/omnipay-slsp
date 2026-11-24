@@ -16,6 +16,10 @@ The amount is compared as formatted text. Omnipay formats your `amount` with two
 
 The message is spelled `incorect` in the code; match on the exception class, not the text.
 
+## "Shared secret must not be empty" or "must be a 16- or 24-byte 3DES key"
+
+The secret is empty (usually a missing environment variable in this deployment) or does not decode to a 3DES key. Since 4.0 the gateway refuses to sign or verify with it: OpenSSL would pad it with zero bytes, and an empty secret would be an all-zero key anyone can compute. Set the base64 key from Slovenská sporiteľňa (or the simulator's key in test mode).
+
 ## "Shared secret must be base64 encoded"
 
 Since 4.0 the secret is decoded strictly. Remove quotes or other characters around the value in your configuration, and use the standard base64 alphabet (`+` and `/`, not `-` and `_`).

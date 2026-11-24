@@ -32,12 +32,12 @@ Like in every Omnipay gateway, `initialize()` first resets all parameters to the
 
 | Parameter | Setter / getter | Type | Default | Description |
 |---|---|---|---|---|
-| `sharedSecret` | `setSharedSecret()` / `getSharedSecret()` | `?string` | `''` | The base64-encoded 3DES key from Slovenská sporiteľňa, 16 or 24 bytes after decoding. Signs the request and verifies the return; never sent anywhere. Decoded strictly: whitespace, line breaks and missing `=` padding are accepted, any other character outside the base64 alphabet throws `Exception\InvalidArgumentException('Shared secret must be base64 encoded')` when signing. |
+| `sharedSecret` | `setSharedSecret()` / `getSharedSecret()` | `?string` | `''` | The base64-encoded 3DES key from Slovenská sporiteľňa, 16 or 24 bytes after decoding. Signs the request and verifies the return; never sent anywhere. Decoded strictly: whitespace, line breaks and missing `=` padding are accepted, any other character outside the base64 alphabet throws `Exception\InvalidArgumentException('Shared secret must be base64 encoded')` when signing. Required: an empty or whitespace-only secret (including the default `''`) throws `Shared secret must not be empty`, a key of another length than 16 or 24 bytes `Shared secret must be a 16- or 24-byte 3DES key`, in `purchase()` and `completePurchase()`. |
 | `testMode` | `setTestMode()` / `getTestMode()` | `bool` | not set (off) | `true` redirects to the payment simulator instead of SporoPay. See [Test mode](./test-mode). |
 | `testHost` | `setTestHost()` / `getTestHost()` | `?string` | `''` (means `https://platby.tomaj.sk`) | Scheme and host of the simulator used in test mode, without a trailing slash, for example `http://127.0.0.1:8080`. |
 
-::: warning An empty secret is not rejected
-The gateway's default `sharedSecret` is an empty string, and nothing checks that you set it. Check your configuration when the application starts, for example with `getenv('SPOROPAY_SHARED_SECRET') ?: throw new RuntimeException(...)`.
+::: warning Check the secret at startup
+The gateway's default `sharedSecret` is an empty string. Since 4.0 every `purchase()` and `completePurchase()` throws `Exception\InvalidArgumentException` with an empty secret or a key of the wrong length, instead of signing with a key padded with zero bytes. Check your configuration when the application starts as well, for example with `getenv('SPOROPAY_SHARED_SECRET') ?: throw new RuntimeException(...)`, so a broken deployment fails at once instead of at the first payment.
 :::
 
 ## `purchase()` parameters
