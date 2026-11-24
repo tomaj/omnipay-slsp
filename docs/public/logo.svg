@@ -1,6 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect x="4" y="12" width="56" height="40" rx="6" fill="#2870ed"/>
-  <rect x="4" y="20" width="56" height="8" fill="#1b4fa8"/>
-  <rect x="12" y="36" width="20" height="6" rx="2" fill="#ffffff"/>
-  <circle cx="46" cy="39" r="5" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="omnipay-slsp">
+  <title>omnipay-slsp</title>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#1f5fd6"/>
+  <rect x="11" y="17" width="42" height="30" rx="5" fill="#e0242f"/>
+  <rect x="11" y="23" width="42" height="6" fill="#1f5fd6"/>
+  <path d="M17 39h11" fill="none" stroke="#1f5fd6" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M37 39.5l4.5 4 8-9" fill="none" stroke="#1f5fd6" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

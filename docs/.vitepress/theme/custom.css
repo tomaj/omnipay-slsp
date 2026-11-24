@@ -1,0 +1,130 @@
+/*
+ * omnipay-slsp: Slovenská sporiteľňa blue with a red accent. The omnipay-* packages share the layout of this file and swap the
+ * palette (--ot-primary is the square of the logo, --ot-accent the card).
+ */
+:root {
+  --ot-primary: #1f5fd6;
+  --ot-accent: #e0242f;
+  --ot-accent-hover: #c01d27;
+  --ot-soft: #e9f0fd;
+  --ot-soft-strong: #cbdbf8;
+
+  --vp-c-brand-1: #1f5fd6;
+  --vp-c-brand-2: #2870ed;
+  --vp-c-brand-3: #1f5fd6;
+  --vp-c-brand-soft: rgba(31, 95, 214, 0.12);
+
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-bg: var(--ot-primary);
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: #ffffff;
+  --vp-button-brand-hover-bg: #184bb0;
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: #ffffff;
+  --vp-button-brand-active-bg: #123a8a;
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #1f5fd6 30%, #c01d27 100%);
+  --vp-home-hero-image-background-image: radial-gradient(circle at 50% 50%, rgba(224, 36, 47, 0.30), rgba(31, 95, 214, 0.10) 45%, rgba(31, 95, 214, 0) 68%);
+  --vp-home-hero-image-filter: blur(44px);
+
+  --vp-c-tip-1: #1f5fd6;
+  --vp-c-tip-soft: rgba(31, 95, 214, 0.10);
+}
+
+.dark {
+  --ot-primary: #e0242f;
+  --ot-accent: #e0242f;
+  --ot-soft: rgba(110, 166, 247, 0.14);
+  --ot-soft-strong: rgba(141, 187, 255, 0.30);
+
+  --vp-c-brand-1: #8dbbff;
+  --vp-c-brand-2: #6ea6f7;
+  --vp-c-brand-3: #8dbbff;
+  --vp-c-brand-soft: rgba(141, 187, 255, 0.16);
+
+  --vp-button-brand-bg: #2870ed;
+  --vp-button-brand-hover-bg: #2a78d0;
+  --vp-button-brand-active-bg: #1f5fd6;
+
+  --vp-home-hero-name-background: linear-gradient(120deg, #8dbbff 20%, #ff6b73 100%);
+  --vp-home-hero-image-background-image: radial-gradient(circle at 50% 50%, rgba(224, 36, 47, 0.20), rgba(141, 187, 255, 0.08) 45%, rgba(141, 187, 255, 0) 68%);
+
+  --vp-c-tip-1: #8dbbff;
+  --vp-c-tip-soft: rgba(141, 187, 255, 0.12);
+}
+
+.vp-doc a {
+  text-underline-offset: 3px;
+}
+
+/* feature icons: inline SVGs drawn with these classes, so one icon serves both themes */
+.ot-icon .ot-soft { fill: var(--ot-soft-strong); }
+.ot-icon .ot-ink { fill: none; stroke: var(--vp-c-text-1); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.ot-icon .ot-ink-f { fill: var(--vp-c-text-1); }
+.ot-icon .ot-acc { fill: var(--ot-accent); stroke: var(--vp-c-text-1); stroke-width: 2.2; stroke-linejoin: round; }
+.ot-icon .ot-mark { fill: none; stroke: #ffffff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+.VPFeature .icon {
+  background-color: var(--ot-soft);
+  width: 56px;
+  height: 56px;
+}
+
+/* a larger hero illustration than VitePress's default 320 px */
+@media (min-width: 640px) {
+  .VPHero .image-container { width: 400px; height: 340px; }
+  .VPHero .image-src { max-width: 400px; max-height: 340px; }
+}
+@media (min-width: 960px) {
+  .VPHero .image-container { width: 480px; height: 410px; }
+  .VPHero .image-src { max-width: 480px; max-height: 410px; }
+}
+
+/* "Where to go next" cards on the home page */
+.ot-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 16px 0 8px;
+}
+.ot-cards a {
+  display: block;
+  padding: 16px 18px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+.ot-cards a:hover {
+  border-color: var(--vp-c-brand-1);
+}
+.ot-cards strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.ot-cards span {
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* diagrams: the light or the dark SVG */
+.ot-diagram {
+  margin: 20px auto;
+  max-width: 720px;
+}
+.ot-diagram img {
+  width: 100%;
+  height: auto;
+}
+.ot-diagram .dark-only,
+.dark .ot-diagram .light-only {
+  display: none;
+}
+.dark .ot-diagram .dark-only {
+  display: block;
+}

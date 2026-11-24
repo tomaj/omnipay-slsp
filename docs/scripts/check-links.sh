@@ -8,6 +8,7 @@ port="${DOCS_LINK_PORT:-4173}"
 base="/omnipay-slsp/"
 
 python3 scripts/check-snippets.py
+python3 scripts/check-svg.py > /dev/null
 
 npm run docs:build
 
@@ -142,13 +143,14 @@ while true; do
   if [[ "$status" -eq 0 ]]; then
     break
   fi
-  mapfile -t codes < <(grep -oE '\[[0-9]{3}\]' /tmp/docs-linkinator.txt | tr -d '[]' | sort -u)
-  if [[ ${#codes[@]} -eq 0 ]]; then
+  # a plain list instead of mapfile, so the script also runs on macOS bash 3.2
+  codes=$(grep -oE '\[[0-9]{3}\]' /tmp/docs-linkinator.txt | tr -d '[]' | sort -u || true)
+  if [[ -z "$codes" ]]; then
     exit "$status"
   fi
   only_rate_limit=1
   retryable=1
-  for code in "${codes[@]}"; do
+  for code in $codes; do
     if [[ "$code" != "429" ]]; then
       only_rate_limit=0
     fi

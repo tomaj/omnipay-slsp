@@ -1,7 +1,9 @@
-"""Code examples come from examples/, which the test suite runs (tests/ExamplesTest.php).
+"""The longer code samples come from examples/<name>/, which CI runs (examples.yml, tests/ExamplesTest.php).
+Inline ```php blocks run in tests/DocsSnippetsTest.php.
 
 - Every `<<< @/...` snippet import must point at an existing file.
-- Every PHP file in examples/ must be included by at least one page.
+- Every example's code (*.php, e2e.sh) and its expected-output.txt must be included by at least one page,
+  and every example must have its own page in docs/examples/.
 """
 import re
 import sys
@@ -21,9 +23,14 @@ for page in sorted(docs.rglob("*.md")):
             errors.append(f"{page.relative_to(docs)}: snippet {target} does not exist")
         included.add(path)
 
-for example in sorted(examples.glob("*.php")):
-    if example.resolve() not in included:
-        errors.append(f"examples/{example.name} is not included in any page")
+for example in sorted(p for p in examples.iterdir() if p.is_dir() and p.name != "ci"):
+    if not (docs / "examples" / f"{example.name}.md").is_file():
+        errors.append(f"examples/{example.name} has no page docs/examples/{example.name}.md")
+    files = [f for f in example.rglob("*") if f.is_file() and "vendor" not in f.parts
+             and (f.suffix == ".php" or f.name in ("e2e.sh", "expected-output.txt"))]
+    for file in sorted(files):
+        if file.resolve() not in included:
+            errors.append(f"{file.relative_to(docs.parent)} is not included in any page")
 
 for error in errors:
     print(error, file=sys.stderr)

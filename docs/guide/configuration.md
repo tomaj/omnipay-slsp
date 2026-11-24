@@ -1,50 +1,94 @@
 # Configuration
 
-Parameters are set on the gateway (they become the defaults of every request) or passed to `purchase([...])` / `completePurchase([...])`, which override the gateway values. Each parameter also has a typed setter. Omnipay maps array keys to setters, so `accountNumberPrefix` and `account_number_prefix` both call `setAccountNumberPrefix()`.
+Parameters are set on the gateway, where they become the defaults of every request, or passed in the array of `purchase([...])` / `completePurchase([...])`, which overrides the gateway values for that request. Every parameter also has a typed setter on the request. Omnipay maps array keys to setters, so `accountNumberPrefix` and `account_number_prefix` both call `setAccountNumberPrefix()`.
 
 ```php
 use Omnipay\SporoPay\Gateway;
 
 $gateway = new Gateway();
-$gateway->setSharedSecret($_ENV['SPOROPAY_SHARED_SECRET']);
+$gateway->setSharedSecret(getenv('SPOROPAY_SHARED_SECRET') ?: 'Z3qY08EpvLlAAoMZdnyUdQ==');
 $gateway->setTestMode(false);
+
+// the same with initialize(), for example from a configuration array
+$gateway->initialize([
+    'sharedSecret' => getenv('SPOROPAY_SHARED_SECRET') ?: 'Z3qY08EpvLlAAoMZdnyUdQ==',
+    'testMode' => false,
+]);
+
+var_dump($gateway->getSharedSecret(), $gateway->getTestMode());
 ```
+
+<!-- snippet: output -->
+```text
+string(24) "Z3qY08EpvLlAAoMZdnyUdQ=="
+bool(false)
+```
+
+::: tip initialize() resets
+Like in every Omnipay gateway, `initialize()` first resets all parameters to their defaults and then applies the array.
+:::
 
 ## Gateway parameters
 
-| Parameter | Setter | Description |
-|---|---|---|
-| `sharedSecret` | `setSharedSecret()` | The base64-encoded 3DES key from Slovenská sporiteľňa (16 or 24 bytes after decoding). Decoded strictly: whitespace and missing `=` padding are accepted, other characters throw `Exception\InvalidArgumentException`. Never sent to the browser. |
-| `testMode` | `setTestMode()` | `true` sends payments to the payment simulator instead of `https://ib.slsp.sk/epayment/epayment/epayment.xml`. Default `false`. See [Test mode](./test-mode). |
-| `testHost` | `setTestHost()` | Scheme and host of the simulator used in test mode, without a trailing slash. Default `https://platby.tomaj.sk`. |
+| Parameter | Setter / getter | Type | Default | Description |
+|---|---|---|---|---|
+| `sharedSecret` | `setSharedSecret()` / `getSharedSecret()` | `?string` | `''` | The base64-encoded 3DES key from Slovenská sporiteľňa, 16 or 24 bytes after decoding. Signs the request and verifies the return; never sent anywhere. Decoded strictly: whitespace, line breaks and missing `=` padding are accepted, any other character outside the base64 alphabet throws `Exception\InvalidArgumentException('Shared secret must be base64 encoded')` when signing. |
+| `testMode` | `setTestMode()` / `getTestMode()` | `bool` | not set (off) | `true` redirects to the payment simulator instead of SporoPay. See [Test mode](./test-mode). |
+| `testHost` | `setTestHost()` / `getTestHost()` | `?string` | `''` (means `https://platby.tomaj.sk`) | Scheme and host of the simulator used in test mode, without a trailing slash, for example `http://127.0.0.1:8080`. |
+
+::: warning An empty secret is not rejected
+The gateway's default `sharedSecret` is an empty string, and nothing checks that you set it. Check your configuration when the application starts, for example with `getenv('SPOROPAY_SHARED_SECRET') ?: throw new RuntimeException(...)`.
+:::
 
 ## `purchase()` parameters
 
-| Parameter | Setter | Sent as | Description |
-|---|---|---|---|
-| `accountNumberPrefix` | `setAccountNumberPrefix()` | `pu_predcislo` | Prefix of your account at Slovenská sporiteľňa (`000000` when none). Required. |
-| `accountNumber` | `setAccountNumber()` | `pu_cislo` | Your account number. Required. |
-| | | `pu_kbanky` | Always `0900` (`PurchaseRequest::BANK_CODE`). |
-| `amount` | `setAmount()` | `suma` | Amount in EUR, formatted by Omnipay with two decimals (`'10.00'`). |
-| | | `mena` | Always `EUR` (`PurchaseRequest::CURRENCY`). |
-| `vs` | `setVs()` | `vs` | Variable symbol: identifies the order, up to 10 digits. Required. Use a value unique per order. |
-| `ss` | `setSs()` | `ss` | Specific symbol, up to 10 digits. Required. |
-| `rurl` | `setRurl()` | `url` | Return URL the bank redirects the customer to. Required. |
-| `param` | `setParam()` | `param` | Free text returned to you unchanged (for example `order=2024000123`). Required. |
+| Parameter | Setter | Sent as | Required | Description |
+|---|---|---|---|---|
+| `accountNumberPrefix` | `setAccountNumberPrefix()` | `pu_predcislo` | yes | Prefix of your account at Slovenská sporiteľňa (`000000` when it has none). |
+| `accountNumber` | `setAccountNumber()` | `pu_cislo` | yes | Your account number. |
+| | | `pu_kbanky` | | Always `0900`, the bank code of Slovenská sporiteľňa (`PurchaseRequest::BANK_CODE`). |
+| `amount` | `setAmount()` | `suma` | by the bank | Amount in euro. Omnipay formats it with two decimals: `'10'`, `10` and `'10.0'` are sent as `10.00`; more than two decimals throws `InvalidRequestException('Amount precision is too high for currency.')`, a negative amount `'A negative amount is not allowed.'`. `purchase()` does not check that it is set. See the [Amount formats example](../examples/amount-formats). |
+| | | `mena` | | Always `EUR` (`PurchaseRequest::CURRENCY`). |
+| `vs` | `setVs()` | `vs` | yes | Variable symbol: identifies the order, up to 10 digits. Use a value unique per order. |
+| `ss` | `setSs()` | `ss` | yes | Specific symbol, up to 10 digits. |
+| `rurl` | `setRurl()` | `url` | yes | Return URL: where the bank sends the customer back with the result. |
+| `param` | `setParam()` | `param` | yes | Free text returned to you unchanged and signed in both directions, for example `order=2024000123`. |
+| `sharedSecret`, `testMode`, `testHost` | | | | Inherited from the gateway, can be overridden per request. |
 
-All of them are part of `sign1`, see [Signatures](./signatures).
+Every field is part of `sign1`, see [Signatures](./signatures). When a required parameter is `null`, `purchase()` throws `InvalidRequestException` with the name of the **sent** field: `The pu_predcislo parameter is required`, `The pu_cislo parameter is required`, `The vs parameter is required`, `The ss parameter is required`, `The rurl parameter is required`, `The param parameter is required`.
+
+The currency is not a parameter: SporoPay pays in euro. Omnipay's generic request parameters (`currency`, `description`, `transactionId`, `returnUrl`, ...) are accepted but not sent to the bank; use `rurl` for the return URL.
 
 ## `completePurchase()` parameters
 
-| Parameter | Description |
-|---|---|
-| `vs` | The variable symbol of the order you are completing. **Required.** The return's `vs` must be exactly this value. |
-| `amount` | The amount of the order. **Required.** Formatted like in `purchase()` (`10`, `'10.0'` and `'10.00'` all mean `'10.00'`) and compared with the return's `suma`. |
-| `ss` | Optional. When set, the return's `ss` must be exactly this value. |
-| `sharedSecret` | Usually inherited from the gateway. |
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `vs` | `?string` | yes | The variable symbol of the order you are completing. The returned `vs` must be exactly this value (`'0123'` is not `'123'`). |
+| `amount` | `string\|int\|float` | yes | The amount of the order. Formatted like in `purchase()` (`10`, `'10.0'` and `'10.00'` all mean `'10.00'`) and compared with the returned `suma`. |
+| `ss` | `?string` | no | When set, the returned `ss` must be exactly this value. `null` skips the check. |
+| `sharedSecret` | `?string` | yes | Usually inherited from the gateway. |
 
-The return fields are read from the HTTP request that Omnipay gives the gateway: `Request::createFromGlobals()` by default. In a framework, pass the current Symfony request to the gateway:
+The returned fields are read from the query string of the HTTP request the gateway was created with.
+
+## The HTTP request in frameworks
+
+Omnipay gives the gateway a Symfony `Request`, `Request::createFromGlobals()` by default, which is right for plain PHP. In a framework, or a long-running server (RoadRunner, FrankenPHP worker mode, Swoole), create the gateway per request with the current request:
 
 ```php
-$gateway = new \Omnipay\SporoPay\Gateway(null, $symfonyRequest);
+use Omnipay\SporoPay\Gateway;
+use Symfony\Component\HttpFoundation\Request;
+
+$request = Request::create('https://shop.example/return', 'GET', ['vs' => '2024000123', 'result' => 'OK', 'SIGN2' => '...']);
+
+$gateway = new Gateway(null, $request);                  // null: Omnipay discovers the HTTP client
+// or: Omnipay::create('SporoPay', null, $request);
+
+echo $gateway->getShortName() . "\n";
 ```
+
+<!-- snippet: output -->
+```text
+SporoPay
+```
+
+Laravel's `Illuminate\Http\Request` extends the Symfony request, so you can pass it directly; with a PSR-7 request, convert it with `symfony/psr-http-message-bridge`.

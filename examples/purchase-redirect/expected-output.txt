@@ -1,0 +1,21 @@
+isRedirect:   true
+isSuccessful: false
+method:       GET
+endpoint:     https://platby.tomaj.sk/payment/sporopay-des
+fields:
+  pu_predcislo = '000000'
+  pu_cislo     = '0013662162'
+  pu_kbanky    = '0900'
+  suma         = '10.00'
+  mena         = 'EUR'
+  vs           = '2024000123'
+  ss           = '0000000001'
+  url          = 'https://shop.example/return'
+  param        = 'order=2024000123'
+  sign1        = 'U8BhKPlggZUOhAmr5OTr61Cj8p0cW9TF'
+bank code 0900, currency EUR (constants)
+
+redirect URL:
+https://platby.tomaj.sk/payment/sporopay-des?pu_predcislo=000000&pu_cislo=0013662162&pu_kbanky=0900&suma=10.00&mena=EUR&vs=2024000123&ss=0000000001&url=https%3A%2F%2Fshop.example%2Freturn&param=order%3D2024000123&sign1=U8BhKPlggZUOhAmr5OTr61Cj8p0cW9TF
+
+HTTP 302, Location is the redirect URL: true

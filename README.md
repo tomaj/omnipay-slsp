@@ -1,10 +1,12 @@
+<p align="center"><a href="https://tomaj.github.io/omnipay-slsp/"><img src="docs/public/logo.svg" width="96" height="96" alt="omnipay-slsp"></a></p>
+
 # Omnipay SporoPay (SLSP)
 
 **SporoPay (Slovenská sporiteľňa, Slovakia) gateway for the [Omnipay](https://omnipay.thephpleague.com/) payment processing library**
 
 **Documentation: https://tomaj.github.io/omnipay-slsp/**
 
-[Getting started](https://tomaj.github.io/omnipay-slsp/guide/getting-started) · [Operations](https://tomaj.github.io/omnipay-slsp/guide/operations) · [API reference](https://tomaj.github.io/omnipay-slsp/api/reference) · [Changelog](https://tomaj.github.io/omnipay-slsp/changelog)
+[Getting started](https://tomaj.github.io/omnipay-slsp/guide/getting-started) · [Payment flow](https://tomaj.github.io/omnipay-slsp/guide/payment-flow) · [Examples](https://tomaj.github.io/omnipay-slsp/examples/) · [API reference](https://tomaj.github.io/omnipay-slsp/api/reference) · [Changelog](https://tomaj.github.io/omnipay-slsp/changelog)
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/tomaj/omnipay-slsp.svg)](https://packagist.org/packages/tomaj/omnipay-slsp)
 [![CI](https://github.com/tomaj/omnipay-slsp/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/tomaj/omnipay-slsp/actions/workflows/ci.yml?query=branch%3Amaster)
@@ -39,7 +41,7 @@ Redirect the customer to the bank:
 use Omnipay\Omnipay;
 
 $gateway = Omnipay::create('SporoPay');
-$gateway->setSharedSecret('your-base64-3des-key');
+$gateway->setSharedSecret(getenv('SPOROPAY_SHARED_SECRET') ?: 'Z3qY08EpvLlAAoMZdnyUdQ=='); // base64 3DES key
 
 $response = $gateway->purchase([
     'accountNumberPrefix' => '000000', // your account: prefix (pu_predcislo)
@@ -58,7 +60,7 @@ On the return URL, verify the bank's answer against the order you expect:
 
 ```php
 $response = $gateway->completePurchase([
-    'vs' => $order->variableSymbol,
+    'vs' => $order->vs,
     'amount' => $order->amount,
 ])->send();
 
@@ -67,7 +69,7 @@ if ($response->isSuccessful()) {
 }
 ```
 
-The [documentation](https://tomaj.github.io/omnipay-slsp/) covers every parameter, the signed strings, test mode and error handling.
+The [documentation](https://tomaj.github.io/omnipay-slsp/) covers every parameter, the signed strings, test mode, error handling and testing. The [examples](https://tomaj.github.io/omnipay-slsp/examples/) in [`examples/`](examples) run in CI, from the payment redirect to a shop and a fake bank on localhost.
 
 ## Contributing
 

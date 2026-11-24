@@ -1,0 +1,20 @@
+sign1 (payment request)
+  000000;0013662162;0900;10.00;EUR;2024000123;0000000001;https://shop.example/return;order=2024000123
+  library U8BhKPlggZUOhAmr5OTr61Cj8p0cW9TF
+  openssl U8BhKPlggZUOhAmr5OTr61Cj8p0cW9TF
+  equal   true
+SIGN2 (return, result OK)
+  000000;1234567890;0900;000000;0013662162;0900;10.00;EUR;2024000123;0000000001;https://shop.example/return;order=2024000123;OK;OK
+  library HC85nauH3W8MH7JcaWKvPBCTk+GuydGv
+  openssl HC85nauH3W8MH7JcaWKvPBCTk+GuydGv
+  equal   true
+sign1 with a 24-byte key
+  000000;0013662162;0900;10.00;EUR;2024000123;0000000001;https://shop.example/return;order=2024000123
+  library EtY1FyARRhqMziz30oC1r3Alj/smTcBP
+  openssl EtY1FyARRhqMziz30oC1r3Alj/smTcBP
+  equal   true
+
+shared secrets that are not strict base64:
+  "Z3qY08EpvLlAAoMZdnyUdQ=="   Omnipay\SporoPay\Exception\InvalidArgumentException: Shared secret must be base64 encoded
+  Z3qY08EpvLlAAoMZdnyUdQ       accepted, G/r4RvZaLIXZj75QOQstbMEqhZkCkHHj
+  Z3qY08Ep-LlAAoMZdnyUdQ==     Omnipay\SporoPay\Exception\InvalidArgumentException: Shared secret must be base64 encoded

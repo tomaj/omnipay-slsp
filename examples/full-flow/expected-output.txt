@@ -1,0 +1,16 @@
+== the customer pays order 2024000123
+shop  302 redirect to /payment/sporopay-des, vs=2024000123, suma=10.00
+bank  302 redirect to /return with 15 fields, result=OK, SIGN2 set
+shop  200 Thank you, order 2024000123 is paid (10.00 EUR).
+== the customer cancels order 2024000124 in the bank
+shop  302 redirect to /payment/sporopay-des, vs=2024000124, suma=24.90
+bank  302 redirect to /return with 15 fields, result=NOK, SIGN2 set
+shop  200 Order 2024000124 was not paid (NOK). You can try again.
+== the customer changes the amount of order 2024000124
+shop  302 redirect to /payment/sporopay-des, vs=2024000124, suma=24.90
+      the customer edits suma to 0.01 in the address bar
+bank  400 SporoPay: the payment request has an invalid signature
+== somebody opens a forged success URL for order 2024000124
+shop  400 Payment of order 2024000124 could not be verified: incorect signature
+== the orders
+shop  200 2024000123 paid, 2024000124 new
