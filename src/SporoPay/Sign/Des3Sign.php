@@ -15,7 +15,7 @@ final readonly class Des3Sign
      *                                  would sign with an all-zero key anyone can compute)
      * @throws RuntimeException when OpenSSL cannot compute the signature
      */
-    public function sign(string $input, string $secret): string
+    public function sign(string $input, #[\SensitiveParameter] string $secret): string
     {
         if (trim($secret) === '') {
             throw new InvalidArgumentException('Shared secret must not be empty');

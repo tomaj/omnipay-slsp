@@ -103,7 +103,7 @@ The getters return `null` when the data has no string under that key (only possi
 
 | Method | Returns | Description |
 |---|---|---|
-| `sign(string $input, string $secret)` | `string` | Base64 of DES-EDE3-CBC (zero IV, no padding) of SHA-1(`$input`) padded with `0xFF` to 24 bytes; the key is the base64-decoded `$secret` (16 bytes `K1 K2` used as `K1 K2 K1`, or 24 bytes). Throws `Exception\InvalidArgumentException` when `$secret` is empty or only whitespace, not strict base64, or not a 16- or 24-byte key; `Exception\RuntimeException` when OpenSSL fails. |
+| `sign(string $input, #[\SensitiveParameter] string $secret)` | `string` | Base64 of DES-EDE3-CBC (zero IV, no padding) of SHA-1(`$input`) padded with `0xFF` to 24 bytes; the key is the base64-decoded `$secret` (16 bytes `K1 K2` used as `K1 K2 K1`, or 24 bytes). Throws `Exception\InvalidArgumentException` when `$secret` is empty or only whitespace, not strict base64, or not a 16- or 24-byte key; `Exception\RuntimeException` when OpenSSL fails. |
 
 ## Exceptions
 

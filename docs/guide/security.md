@@ -8,6 +8,12 @@ omnipay-slsp signs your payment requests and verifies the bank's returns. This p
 - An empty secret, or one that does not decode to a 16- or 24-byte key, is rejected: `purchase()` and `completePurchase()` throw `Exception\InvalidArgumentException` instead of signing with a key that OpenSSL pads with zero bytes (an empty secret would be an all-zero key anyone can compute). Still check the configuration when the application starts, so a missing secret fails the deployment, not the first payment.
 - The simulator's key (`Z3qY08EpvLlAAoMZdnyUdQ==`) is public. Use it only with test mode.
 
+### Stack traces
+
+Error reports (Tracy, Sentry, Monolog, `getTraceAsString()`) show the arguments of every call on the stack. The parameters that take the secret are marked with `#[\SensitiveParameter]`, so PHP shows `Object(SensitiveParameterValue)` instead of the key: `setSharedSecret()` on `Gateway`, `PurchaseRequest` and `CompletePurchaseRequest`, and `Des3Sign::sign()` (which throws for an empty or malformed key, with the key on the stack).
+
+This does not cover arrays: a secret passed as `initialize(['sharedSecret' => ...])` or `purchase(['sharedSecret' => ...])` is still printed with the array. Set it with `setSharedSecret()`, and turn off arguments in traces in production with `zend.exception_ignore_args=On` in `php.ini` (the default of `php.ini-production`).
+
 ## What `completePurchase()` guarantees
 
 When it returns without an exception:

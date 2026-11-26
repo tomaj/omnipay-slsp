@@ -43,6 +43,7 @@ When a fix is ready, we publish a [GitHub Security Advisory](https://github.com/
 omnipay-slsp signs payment requests to SporoPay (Slovenská sporiteľňa) and verifies the bank's return request:
 
 - Keep the `sharedSecret` (the base64 3DES key from Slovenská sporiteľňa) in the environment or a secret store. Do not commit it, log it or send it to the browser. Since 4.0 an empty secret or a key that is not 16 or 24 bytes long is rejected instead of being padded with zero bytes.
+- Since 4.0 the secret parameters (`setSharedSecret()`, `Des3Sign::sign()`) are marked `#[\SensitiveParameter]`, so stack traces show `Object(SensitiveParameterValue)` instead of the key. A secret passed in the `initialize()`/`purchase([...])` array is not covered: set it with `setSharedSecret()` and use `zend.exception_ignore_args=On` in production.
 - Always confirm a payment with `completePurchase()` on the return URL, and pass the variable symbol (`vs`) and the amount of the order you expect. Never mark an order paid from the query parameters alone.
 - The 3DES signature scheme (SHA-1 digest encrypted with DES-EDE3-CBC) is defined by the bank and cannot be changed by the library; treat the shared secret as a high-value credential.
 - Use a variable symbol that is unique per order, so one successful return cannot be replayed for another order.

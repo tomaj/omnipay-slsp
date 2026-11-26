@@ -103,7 +103,7 @@ Gettery vrátia `null`, keď dáta pod daným kľúčom nemajú reťazec (to sa 
 
 | Metóda | Vráti | Popis |
 |---|---|---|
-| `sign(string $input, string $secret)` | `string` | Base64 z DES-EDE3-CBC (nulový IV, bez zarovnania) zo SHA-1(`$input`) doplneného hodnotou `0xFF` na 24 bajtov; kľúčom je `$secret` dekódovaný z base64 (16 bajtov `K1 K2` použitých ako `K1 K2 K1`, alebo 24 bajtov). Vyhodí `Exception\InvalidArgumentException`, keď je `$secret` prázdny alebo len z bielych znakov, nie je striktné base64 alebo nemá 16 či 24 bajtov; `Exception\RuntimeException`, keď OpenSSL zlyhá. |
+| `sign(string $input, #[\SensitiveParameter] string $secret)` | `string` | Base64 z DES-EDE3-CBC (nulový IV, bez zarovnania) zo SHA-1(`$input`) doplneného hodnotou `0xFF` na 24 bajtov; kľúčom je `$secret` dekódovaný z base64 (16 bajtov `K1 K2` použitých ako `K1 K2 K1`, alebo 24 bajtov). Vyhodí `Exception\InvalidArgumentException`, keď je `$secret` prázdny alebo len z bielych znakov, nie je striktné base64 alebo nemá 16 či 24 bajtov; `Exception\RuntimeException`, keď OpenSSL zlyhá. |
 
 ## Výnimky {#exceptions}
 
