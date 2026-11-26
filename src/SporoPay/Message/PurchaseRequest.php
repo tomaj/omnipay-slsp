@@ -25,11 +25,18 @@ final class PurchaseRequest extends AbstractRequest
 
     /**
      * @return array<string, ?string>
+     * @throws InvalidRequestException when a required parameter is missing, or the account, a payment symbol,
+     *                                 the return URL or `param` has an invalid format
      */
     #[\Override]
     public function getData(): array
     {
         $this->validate('pu_predcislo', 'pu_cislo', 'vs', 'ss', 'rurl', 'param', 'amount');
+        ParameterGuard::account($this->getAccountNumberPrefix() ?? '', $this->getAccountNumber() ?? '');
+        ParameterGuard::symbol('vs', $this->getVs() ?? '');
+        ParameterGuard::symbol('ss', $this->getSs() ?? '');
+        ParameterGuard::returnUrl($this->getRurl() ?? '', $this->getTestMode() === true);
+        ParameterGuard::param($this->getParam() ?? '');
         $data = [];
 
         $data['pu_predcislo'] = $this->getAccountNumberPrefix();

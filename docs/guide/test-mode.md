@@ -1,6 +1,6 @@
 # Test mode
 
-With `testMode` on, `purchase()` redirects to a payment simulator instead of SporoPay. Nothing else changes: the signatures, the return and `completePurchase()` work the same.
+With `testMode` on, `purchase()` redirects to a payment simulator instead of SporoPay, and accepts a plain `http://` return URL (`rurl`), for a shop running on `localhost`; production requires `https://`. Nothing else changes: the signatures, the return and `completePurchase()` work the same.
 
 | Mode | `PurchaseRequest::getEndpoint()` |
 |---|---|

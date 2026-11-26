@@ -15,12 +15,26 @@ Výstup ([príklad Presmerovanie na platbu](../examples/purchase-redirect)):
 | Výnimka | Kedy |
 |---|---|
 | `InvalidRequestException('The pu_predcislo parameter is required')`, `... pu_cislo ...`, `... vs ...`, `... ss ...`, `... rurl ...`, `... param ...`, `... amount ...` | parameter je `null` |
+| `InvalidRequestException('The pu_predcislo parameter must be up to 6 digits')`, `('The pu_cislo parameter must be up to 10 digits')` | predčíslie účtu nemá 1 až 6 číslic alebo číslo účtu nemá 1 až 10 číslic (bez pomlčiek, medzier, kódu banky či IBAN) |
+| `InvalidRequestException('The vs parameter must be up to 10 digits')`, `... ss ...` | `vs` alebo `ss` nemá 1 až 10 číslic (len `0` – `9`, bez medzier a znamienok) |
+| `InvalidRequestException('The rurl parameter must be an absolute https:// URL')` | `rurl` nie je absolútna `https://` URL s hostiteľom (je relatívna, má inú schému alebo obsahuje medzery či riadiace znaky); v testovacom režime sa prijme aj `http://` a správa znie `... must be an absolute https:// or http:// URL` |
+| `InvalidRequestException('The param parameter must not contain control characters')` | `param` obsahuje zalomenie riadka, tabulátor, NUL alebo iný riadiaci znak |
 | `InvalidRequestException('Amount precision is too high for currency.')` | `amount` má viac ako dve desatinné miesta |
 | `InvalidRequestException('A negative amount is not allowed.')` | `amount` je záporná |
 | `Exception\InvalidArgumentException('Shared secret must not be empty')` | zdieľaný kľúč je prázdny alebo len z bielych znakov (predvolená hodnota brány je `''`) |
 | `Exception\InvalidArgumentException('Shared secret must be base64 encoded')` | zdieľaný kľúč nie je striktné base64 |
 | `Exception\InvalidArgumentException('Shared secret must be a 16- or 24-byte 3DES key')` | dekódovaný zdieľaný kľúč má inú dĺžku |
 | `Exception\RuntimeException('Unable to compute the DES-EDE3-CBC signature: ...')` | OpenSSL nedokázal zašifrovať |
+
+Výnimky `InvalidRequestException` vyhodí už `getData()`, skôr než sa čokoľvek podpíše, takže chybne zadaná platba sa nikdy nedostane na chybovú stránku SporoPay. Prijímané formáty:
+
+| Parameter | Formát |
+|---|---|
+| `accountNumberPrefix` (`pu_predcislo`) | 1 až 6 číslic (`000000` bez predčíslia) |
+| `accountNumber` (`pu_cislo`) | 1 až 10 číslic |
+| `vs`, `ss` | 1 až 10 číslic |
+| `rurl` | absolútna `https://` URL s hostiteľom, bez medzier a riadiacich znakov; `http://` len v testovacom režime |
+| `param` | ľubovoľný text bez riadiacich znakov, vrátane `''` |
 
 `getData()` vráti polia bez podpisu v tomto poradí: `pu_predcislo`, `pu_cislo`, `pu_kbanky`, `suma`, `mena`, `vs`, `ss`, `url`, `param`. `sendData($data)` pridá `sign1`.
 

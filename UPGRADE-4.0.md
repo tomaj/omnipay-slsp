@@ -78,6 +78,40 @@ $gateway->setSharedSecret((string) getenv('SPOROPAY_SHARED_SECRET'));
 $gateway->setSharedSecret(getenv('SPOROPAY_SHARED_SECRET') ?: throw new RuntimeException('SPOROPAY_SHARED_SECRET is not set'));
 ```
 
+## Account, payment symbols, return URL and `param` are validated
+
+3.x checked only that the purchase parameters were not `null`. A `vs` with letters, an account number with a dash or a relative `rurl` was signed and sent, and Slovenská sporiteľňa rejected it only after the customer was redirected. 4.0 checks the format in `purchase()` (`getData()`, `send()`) before anything is signed and throws `InvalidRequestException`:
+
+| Parameter | Accepted | Message |
+|---|---|---|
+| `accountNumberPrefix` (`pu_predcislo`) | 1 to 6 digits | `The pu_predcislo parameter must be up to 6 digits` |
+| `accountNumber` (`pu_cislo`) | 1 to 10 digits | `The pu_cislo parameter must be up to 10 digits` |
+| `vs`, `ss` | 1 to 10 digits | `The vs parameter must be up to 10 digits`, `The ss parameter must be up to 10 digits` |
+| `rurl` | absolute `https://` URL with a host, no whitespace or control characters; `http://` too in test mode | `The rurl parameter must be an absolute https:// URL` (`... https:// or http:// URL` in test mode) |
+| `param` | any text without control characters | `The param parameter must not contain control characters` |
+
+<!-- snippet: skip -->
+```php
+// 3.x: signed and sent; SporoPay showed an error page after the redirect
+$gateway->purchase([
+    'accountNumberPrefix' => '', 'accountNumber' => '13662162/0900',
+    'vs' => 'ORD-123', 'ss' => '1', 'amount' => '10.00', 'rurl' => '/payment/return', 'param' => "order=1\n",
+])->send();
+
+// 4.0: throws InvalidRequestException('The pu_predcislo parameter must be up to 6 digits') before signing
+$gateway->purchase([
+    'accountNumberPrefix' => '000000',                // 1 to 6 digits
+    'accountNumber' => '0013662162',                  // 1 to 10 digits
+    'vs' => '2024000123',                             // 1 to 10 digits
+    'ss' => '0000000001',                             // 1 to 10 digits
+    'amount' => '10.00',
+    'rurl' => 'https://shop.example/payment/return',  // absolute https:// (http:// only in test mode)
+    'param' => 'order=2024000123',                    // no control characters
+])->send();
+```
+
+A plain `http://` return URL works only with `testMode` on, for a shop running locally. Signatures of valid payments are unchanged.
+
 ## Final classes
 
 `Gateway`, `PurchaseRequest`, `PurchaseResponse`, `CompletePurchaseRequest`, `CompletePurchaseResponse` and `Des3Sign` are `final` (`Des3Sign` is also `readonly`). Code that extended them must wrap them instead.
