@@ -87,8 +87,8 @@ $gateway->setSharedSecret(getenv('SPOROPAY_SHARED_SECRET') ?: throw new RuntimeE
 | `accountNumberPrefix` (`pu_predcislo`) | 1 to 6 digits | `The pu_predcislo parameter must be up to 6 digits` |
 | `accountNumber` (`pu_cislo`) | 1 to 10 digits | `The pu_cislo parameter must be up to 10 digits` |
 | `vs`, `ss` | 1 to 10 digits | `The vs parameter must be up to 10 digits`, `The ss parameter must be up to 10 digits` |
-| `rurl` | absolute `https://` URL with a host, no whitespace or control characters; `http://` too in test mode | `The rurl parameter must be an absolute https:// URL` (`... https:// or http:// URL` in test mode) |
-| `param` | any text without control characters | `The param parameter must not contain control characters` |
+| `rurl` | absolute `https://` URL with a host, no whitespace, control characters or `;`; `http://` too in test mode | `The rurl parameter must be an absolute https:// URL` (`... https:// or http:// URL` in test mode) |
+| `param` | any text without control characters and `;` (the separator of the signed fields) | `The param parameter must not contain control characters or ";"` |
 
 <!-- snippet: skip -->
 ```php
@@ -106,11 +106,13 @@ $gateway->purchase([
     'ss' => '0000000001',                             // 1 to 10 digits
     'amount' => '10.00',
     'rurl' => 'https://shop.example/payment/return',  // absolute https:// (http:// only in test mode)
-    'param' => 'order=2024000123',                    // no control characters
+    'param' => 'order=2024000123',                    // no control characters or ;
 ])->send();
 ```
 
 A plain `http://` return URL works only with `testMode` on, for a shop running locally. Signatures of valid payments are unchanged.
+
+Both signatures join the fields with `;`, so `completePurchase()` rejects a return with `;` in any signed field (`incorect signature`). If you used `;` in `param` or `rurl`, switch to another separator (for example `&` or `,`) and finish payments started before the upgrade by hand.
 
 ## Final classes
 

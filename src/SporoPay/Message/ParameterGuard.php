@@ -55,15 +55,15 @@ final readonly class ParameterGuard
      * The return URL must be absolute, so the bank can send the customer back, and use HTTPS
      * (plain HTTP only in test mode, for a shop running locally).
      *
-     * @throws InvalidRequestException when the URL is not absolute, has another scheme, or contains whitespace
-     *                                 or control characters
+     * @throws InvalidRequestException when the URL is not absolute, has another scheme, or contains whitespace,
+     *                                 control characters or ';' (the separator of the signed fields)
      */
     public static function returnUrl(string $rurl, bool $testMode): void
     {
         $message = $testMode
             ? 'The rurl parameter must be an absolute https:// or http:// URL'
             : 'The rurl parameter must be an absolute https:// URL';
-        if (preg_match('/[\x00-\x20\x7F]/', $rurl) === 1) {
+        if (preg_match('/[\x00-\x20;\x7F]/', $rurl) === 1) {
             throw new InvalidRequestException($message);
         }
         $scheme = parse_url($rurl, PHP_URL_SCHEME);
@@ -79,14 +79,15 @@ final readonly class ParameterGuard
 
     /**
      * `param` is free text that the bank returns signed. Control characters (line breaks, NUL, ...) would
-     * end up in the signed strings and in the return URL.
+     * end up in the signed strings and in the return URL, and ';' separates the signed fields, so a value
+     * containing it could be split differently (completePurchase() rejects such a return).
      *
-     * @throws InvalidRequestException when the value contains a control character
+     * @throws InvalidRequestException when the value contains a control character or ';'
      */
     public static function param(string $param): void
     {
-        if (preg_match('/[\x00-\x1F\x7F]/', $param) === 1) {
-            throw new InvalidRequestException('The param parameter must not contain control characters');
+        if (preg_match('/[\x00-\x1F;\x7F]/', $param) === 1) {
+            throw new InvalidRequestException('The param parameter must not contain control characters or ";"');
         }
     }
 }

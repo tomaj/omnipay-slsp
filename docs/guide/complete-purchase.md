@@ -20,7 +20,7 @@ https://shop.example/return?u_predcislo=000000&u_cislo=1234567890&u_kbanky=0900&
 |---|---|---|
 | 1 | `vs` was passed and is not empty | `The vs parameter is required` |
 | 2 | `amount` was passed | `The amount parameter is required` |
-| 3 | `SIGN2` equals the signature of `u_predcislo;u_cislo;u_kbanky;pu_predcislo;pu_cislo;pu_kbanky;suma;mena;vs;ss;url;param;result;real` (compared with `hash_equals()`) | `incorect signature` (sic) |
+| 3 | `SIGN2` equals the signature of `u_predcislo;u_cislo;u_kbanky;pu_predcislo;pu_cislo;pu_kbanky;suma;mena;vs;ss;url;param;result;real` (compared with `hash_equals()`); no field contains `;`, so the signed string can only be split one way | `incorect signature` (sic) |
 | 4 | the returned `vs` is exactly the expected `vs` | `Variable symbol mismatch` |
 | 5 | the returned `suma` is exactly the expected `amount`, formatted with two decimals | `Amount mismatch` |
 | 6 | the returned `mena` is `EUR` | `Currency mismatch` |

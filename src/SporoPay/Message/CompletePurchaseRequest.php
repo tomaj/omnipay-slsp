@@ -41,8 +41,9 @@ final class CompletePurchaseRequest extends AbstractRequest
      * with the order being completed.
      *
      * @return array{RES: string, VS: string, SS: string, AMOUNT: string, CURRENCY: string, REAL: string}
-     * @throws InvalidRequestException when vs or amount is missing, the signature is invalid,
-     *                                 or the return belongs to another payment
+     * @throws InvalidRequestException when vs or amount is missing, the signature is invalid (also when a
+     *                                 signed field contains the separator ';'), or the return belongs to
+     *                                 another payment
      */
     #[\Override]
     public function getData(): array
@@ -54,7 +55,15 @@ final class CompletePurchaseRequest extends AbstractRequest
         $this->validate('amount');
         $expectedAmount = $this->getAmount(); // formatted with two decimals, like purchase() sends it
 
-        $data = implode(';', array_map($this->queryString(...), self::SIGNED_FIELDS));
+        $fields = array_map($this->queryString(...), self::SIGNED_FIELDS);
+        // SIGN2 covers the fields joined with ';': a field containing ';' could be split differently
+        // (for example moving a part of `param` into `result`), so such a return is never accepted
+        foreach ($fields as $field) {
+            if (str_contains($field, ';')) {
+                throw new InvalidRequestException('incorect signature');
+            }
+        }
+        $data = implode(';', $fields);
         $sign = new Des3Sign();
 
         if (!hash_equals($sign->sign($data, $this->getSharedSecret() ?? ''), $this->queryString('SIGN2'))) {

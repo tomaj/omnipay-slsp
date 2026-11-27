@@ -118,6 +118,41 @@ final class GatewayTest extends TestCase
         $this->complete($query);
     }
 
+    /**
+     * SIGN2 signs the fields joined with ';'. A field containing ';' could be split differently,
+     * so a failed return with a ';' in param must not turn into a successful one.
+     */
+    public function testCompletePurchaseRejectsFieldsWithSeparator(): void
+    {
+        $failed = $this->notification('NOK');
+        $failed['param'] = 'x;OK';
+        $sign2 = new Des3Sign()->sign(implode(';', $failed), self::SHARED_SECRET);
+
+        $forged = $failed;
+        $forged['param'] = 'x';
+        $forged['result'] = 'OK';
+        $forged['real'] = 'NOK;NOK';
+        $forged['SIGN2'] = $sign2;
+        self::assertSame(implode(';', $failed), implode(';', array_slice($forged, 0, 14)));
+
+        $this->expectException(InvalidRequestException::class);
+        $this->expectExceptionMessageIs('incorect signature');
+
+        $this->complete($forged);
+    }
+
+    public function testCompletePurchaseRejectsUrlWithSeparator(): void
+    {
+        $query = $this->notification('OK');
+        $query['url'] = 'https://shop.example/return;x';
+        $query['SIGN2'] = new Des3Sign()->sign(implode(';', $query), self::SHARED_SECRET);
+
+        $this->expectException(InvalidRequestException::class);
+        $this->expectExceptionMessageIs('incorect signature');
+
+        $this->complete($query);
+    }
+
     public function testCompletePurchaseWithKnownSignature(): void
     {
         // SIGN2 computed independently with the openssl CLI (see Des3SignTest)

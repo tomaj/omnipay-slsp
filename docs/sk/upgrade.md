@@ -91,8 +91,8 @@ Verzia 3.x kontrolovala len to, či parametre platby nie sú `null`. `vs` s pís
 | `accountNumberPrefix` (`pu_predcislo`) | 1 až 6 číslic | `The pu_predcislo parameter must be up to 6 digits` |
 | `accountNumber` (`pu_cislo`) | 1 až 10 číslic | `The pu_cislo parameter must be up to 10 digits` |
 | `vs`, `ss` | 1 až 10 číslic | `The vs parameter must be up to 10 digits`, `The ss parameter must be up to 10 digits` |
-| `rurl` | absolútna `https://` URL s hostiteľom, bez medzier a riadiacich znakov; v testovacom režime aj `http://` | `The rurl parameter must be an absolute https:// URL` (v testovacom režime `... https:// or http:// URL`) |
-| `param` | ľubovoľný text bez riadiacich znakov | `The param parameter must not contain control characters` |
+| `rurl` | absolútna `https://` URL s hostiteľom, bez medzier, riadiacich znakov a `;`; v testovacom režime aj `http://` | `The rurl parameter must be an absolute https:// URL` (v testovacom režime `... https:// or http:// URL`) |
+| `param` | ľubovoľný text bez riadiacich znakov a `;` (oddeľovača podpísaných polí) | `The param parameter must not contain control characters or ";"` |
 
 <!-- snippet: skip -->
 ```php
@@ -110,11 +110,13 @@ $gateway->purchase([
     'ss' => '0000000001',                             // 1 to 10 digits
     'amount' => '10.00',
     'rurl' => 'https://shop.example/payment/return',  // absolute https:// (http:// only in test mode)
-    'param' => 'order=2024000123',                    // no control characters
+    'param' => 'order=2024000123',                    // no control characters or ;
 ])->send();
 ```
 
 Obyčajná `http://` návratová URL funguje len so zapnutým `testMode`, pre e-shop bežiaci lokálne. Podpisy platných platieb sa nemenia.
+
+Oba podpisy spájajú polia znakom `;`, preto `completePurchase()` odmietne návrat, ktorý má `;` v niektorom podpísanom poli (`incorect signature`). Ak ste `;` používali v `param` alebo `rurl`, prejdite na iný oddeľovač (napríklad `&` alebo `,`) a platby začaté pred aktualizáciou dokončite ručne.
 
 ## Triedy `final` {#final-classes}
 

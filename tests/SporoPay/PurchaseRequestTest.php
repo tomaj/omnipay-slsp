@@ -173,6 +173,7 @@ final class PurchaseRequestTest extends TestCase
         yield 'tab' => ["https://shop.example/\treturn"];
         yield 'NUL' => ["https://shop.example/\0return"];
         yield 'DEL' => ["https://shop.example/\x7Freturn"];
+        yield 'semicolon' => ['https://shop.example/return;a=1'];
     }
 
     #[DataProvider('invalidReturnUrls')]
@@ -234,13 +235,15 @@ final class PurchaseRequestTest extends TestCase
         yield 'NUL' => ["order=1\0"];
         yield 'unit separator' => ["order=1\x1F"];
         yield 'DEL' => ["order=1\x7F"];
+        yield 'semicolon' => ['order=1;user=5'];
+        yield 'only a semicolon' => [';'];
     }
 
     #[DataProvider('invalidParams')]
-    public function testParamWithControlCharactersIsRejectedBeforeSigning(string $param): void
+    public function testParamWithControlCharactersOrSeparatorIsRejectedBeforeSigning(string $param): void
     {
         $this->expectException(InvalidRequestException::class);
-        $this->expectExceptionMessageIs('The param parameter must not contain control characters');
+        $this->expectExceptionMessageIs('The param parameter must not contain control characters or ";"');
 
         $this->send(['param' => $param]);
     }
@@ -252,7 +255,7 @@ final class PurchaseRequestTest extends TestCase
     {
         yield 'empty' => [''];
         yield 'key=value' => ['order=2024000123'];
-        yield 'spaces and punctuation' => ['order 1; user=5 & a/b?c'];
+        yield 'spaces and punctuation' => ['order 1, user=5 & a/b?c:d'];
         yield 'non-ASCII' => ['objednávka č. 1'];
     }
 

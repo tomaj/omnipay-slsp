@@ -2,7 +2,7 @@
 
 SporoPay signs with 3DES:
 
-1. the fields are joined with `;` (an empty field still adds its separator);
+1. the fields are joined with `;` (an empty field still adds its separator). No field may contain `;`, or the string could be split into fields in more than one way: `purchase()` rejects a `rurl` or `param` with `;`, and `completePurchase()` rejects a return with `;` in any field;
 2. SHA-1 of that string (20 bytes), padded to 24 bytes with `0xFF`;
 3. encrypted with DES-EDE3-CBC, a zero IV and no padding; the key is the base64-decoded shared secret: a 16-byte key `K1 K2` is used as `K1 K2 K1`, a 24-byte key as it is;
 4. base64 encoded (32 characters).
