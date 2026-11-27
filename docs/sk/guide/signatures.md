@@ -2,7 +2,7 @@
 
 SporoPay podpisuje cez 3DES:
 
-1. polia sa spoja znakom `;` (prázdne pole aj tak pridá svoj oddeľovač);
+1. polia sa spoja znakom `;` (prázdne pole aj tak pridá svoj oddeľovač). Žiadne pole nesmie obsahovať `;`, inak by sa reťazec dal rozdeliť na polia viacerými spôsobmi: `purchase()` odmietne `rurl` alebo `param` so `;` a `completePurchase()` odmietne návrat, ktorý má `;` v ľubovoľnom poli;
 2. z tohto reťazca sa vypočíta SHA-1 (20 bajtov) a doplní sa na 24 bajtov hodnotou `0xFF`;
 3. výsledok sa zašifruje cez DES-EDE3-CBC s nulovým IV a bez zarovnania; kľúčom je zdieľaný kľúč dekódovaný z base64: 16-bajtový kľúč `K1 K2` sa použije ako `K1 K2 K1`, 24-bajtový tak, ako je;
 4. zakóduje sa do base64 (32 znakov).

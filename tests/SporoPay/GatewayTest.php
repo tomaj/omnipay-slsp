@@ -34,6 +34,8 @@ final class GatewayTest extends TestCase
 
     public function testPurchaseSign(): void
     {
+        // sign1 computed independently with the openssl CLI: base64(DES-EDE3-CBC(zero IV, no padding,
+        // sha1("000000;0013662162;0900;5.80;EUR;9960012037;0000002313;https://localhost:4444/testserver.php;abc=defgh") . 0xFFFFFFFF))
         $request = $this->gateway->purchase($this->purchaseParameters());
 
         self::assertSame('5.80', $request->getAmount());
@@ -44,7 +46,7 @@ final class GatewayTest extends TestCase
         self::assertFalse($response->isSuccessful());
         self::assertSame('GET', $response->getRedirectMethod());
         self::assertSame(
-            'https://ib.slsp.sk/epayment/epayment/epayment.xml?pu_predcislo=000000&pu_cislo=0013662162&pu_kbanky=0900&suma=5.80&mena=EUR&vs=9960012037&ss=0000002313&url=http%3A%2F%2Flocalhost%3A4444%2Ftestserver.php&param=abc%3Ddefgh&sign1=K0%2BCFnMDIw09Hi8%2FK%2BDwp10Gv8BiVZID',
+            'https://ib.slsp.sk/epayment/epayment/epayment.xml?pu_predcislo=000000&pu_cislo=0013662162&pu_kbanky=0900&suma=5.80&mena=EUR&vs=9960012037&ss=0000002313&url=https%3A%2F%2Flocalhost%3A4444%2Ftestserver.php&param=abc%3Ddefgh&sign1=bS06A9iK6780D5fsicjaRRyocRje%2BQ4t',
             $response->getRedirectUrl(),
         );
     }
@@ -109,6 +111,41 @@ final class GatewayTest extends TestCase
     {
         $query = $this->signedNotification('OK');
         $query['suma'] = '9.99';
+
+        $this->expectException(InvalidRequestException::class);
+        $this->expectExceptionMessageIs('incorect signature');
+
+        $this->complete($query);
+    }
+
+    /**
+     * SIGN2 signs the fields joined with ';'. A field containing ';' could be split differently,
+     * so a failed return with a ';' in param must not turn into a successful one.
+     */
+    public function testCompletePurchaseRejectsFieldsWithSeparator(): void
+    {
+        $failed = $this->notification('NOK');
+        $failed['param'] = 'x;OK';
+        $sign2 = new Des3Sign()->sign(implode(';', $failed), self::SHARED_SECRET);
+
+        $forged = $failed;
+        $forged['param'] = 'x';
+        $forged['result'] = 'OK';
+        $forged['real'] = 'NOK;NOK';
+        $forged['SIGN2'] = $sign2;
+        self::assertSame(implode(';', $failed), implode(';', array_slice($forged, 0, 14)));
+
+        $this->expectException(InvalidRequestException::class);
+        $this->expectExceptionMessageIs('incorect signature');
+
+        $this->complete($forged);
+    }
+
+    public function testCompletePurchaseRejectsUrlWithSeparator(): void
+    {
+        $query = $this->notification('OK');
+        $query['url'] = 'https://shop.example/return;x';
+        $query['SIGN2'] = new Des3Sign()->sign(implode(';', $query), self::SHARED_SECRET);
 
         $this->expectException(InvalidRequestException::class);
         $this->expectExceptionMessageIs('incorect signature');
@@ -325,7 +362,7 @@ final class GatewayTest extends TestCase
         return [
             'amount' => '5.80',
             'vs' => '9960012037',
-            'rurl' => 'http://localhost:4444/testserver.php',
+            'rurl' => 'https://localhost:4444/testserver.php',
             'cs' => '0321',
             'ss' => '0000002313',
             'account_number_prefix' => '000000',

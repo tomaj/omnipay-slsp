@@ -20,7 +20,7 @@ https://shop.example/return?u_predcislo=000000&u_cislo=1234567890&u_kbanky=0900&
 |---|---|---|
 | 1 | `vs` bol odovzdaný a nie je prázdny | `The vs parameter is required` |
 | 2 | `amount` bola odovzdaná | `The amount parameter is required` |
-| 3 | `SIGN2` sa rovná podpisu `u_predcislo;u_cislo;u_kbanky;pu_predcislo;pu_cislo;pu_kbanky;suma;mena;vs;ss;url;param;result;real` (porovnané cez `hash_equals()`) | `incorect signature` (sic) |
+| 3 | `SIGN2` sa rovná podpisu `u_predcislo;u_cislo;u_kbanky;pu_predcislo;pu_cislo;pu_kbanky;suma;mena;vs;ss;url;param;result;real` (porovnané cez `hash_equals()`); žiadne pole neobsahuje `;`, takže podpísaný reťazec sa dá rozdeliť len jedným spôsobom | `incorect signature` (sic) |
 | 4 | vrátený `vs` je presne očakávaný `vs` | `Variable symbol mismatch` |
 | 5 | vrátená `suma` je presne očakávaná `amount` naformátovaná na dve desatinné miesta | `Amount mismatch` |
 | 6 | vrátená `mena` je `EUR` | `Currency mismatch` |

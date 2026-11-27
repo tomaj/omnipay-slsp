@@ -15,12 +15,26 @@ Output (the [Payment redirect example](../examples/purchase-redirect)):
 | Exception | When |
 |---|---|
 | `InvalidRequestException('The pu_predcislo parameter is required')`, `... pu_cislo ...`, `... vs ...`, `... ss ...`, `... rurl ...`, `... param ...`, `... amount ...` | the parameter is `null` |
+| `InvalidRequestException('The pu_predcislo parameter must be up to 6 digits')`, `('The pu_cislo parameter must be up to 10 digits')` | the account number prefix is not 1 to 6 digits, or the account number not 1 to 10 digits (no dashes, spaces, bank code or IBAN) |
+| `InvalidRequestException('The vs parameter must be up to 10 digits')`, `... ss ...` | `vs` or `ss` is not 1 to 10 digits (`0`-`9` only, no spaces or signs) |
+| `InvalidRequestException('The rurl parameter must be an absolute https:// URL')` | `rurl` is not an absolute `https://` URL with a host (relative, another scheme, or containing whitespace, control characters or `;`); in test mode `http://` is accepted too and the message is `... must be an absolute https:// or http:// URL` |
+| `InvalidRequestException('The param parameter must not contain control characters or ";"')` | `param` contains a line break, tab, NUL or another control character, or `;` (the separator of the signed fields) |
 | `InvalidRequestException('Amount precision is too high for currency.')` | `amount` has more than two decimals |
 | `InvalidRequestException('A negative amount is not allowed.')` | `amount` is negative |
 | `Exception\InvalidArgumentException('Shared secret must not be empty')` | the shared secret is empty or only whitespace (the gateway's default is `''`) |
 | `Exception\InvalidArgumentException('Shared secret must be base64 encoded')` | the shared secret is not strict base64 |
 | `Exception\InvalidArgumentException('Shared secret must be a 16- or 24-byte 3DES key')` | the decoded shared secret has another length |
 | `Exception\RuntimeException('Unable to compute the DES-EDE3-CBC signature: ...')` | OpenSSL failed to encrypt |
+
+The `InvalidRequestException`s are thrown by `getData()`, before anything is signed, so a malformed payment never reaches SporoPay's error page. Accepted formats:
+
+| Parameter | Format |
+|---|---|
+| `accountNumberPrefix` (`pu_predcislo`) | 1 to 6 digits (`000000` without a prefix) |
+| `accountNumber` (`pu_cislo`) | 1 to 10 digits |
+| `vs`, `ss` | 1 to 10 digits |
+| `rurl` | absolute `https://` URL with a host, no whitespace, control characters or `;`; `http://` only in test mode |
+| `param` | any text without control characters and `;`, `''` included |
 
 `getData()` returns the fields without the signature, in this order: `pu_predcislo`, `pu_cislo`, `pu_kbanky`, `suma`, `mena`, `vs`, `ss`, `url`, `param`. `sendData($data)` adds `sign1`.
 

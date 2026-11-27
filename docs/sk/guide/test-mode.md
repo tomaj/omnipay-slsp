@@ -1,6 +1,6 @@
 # Testovací režim
 
-So zapnutým `testMode` presmeruje `purchase()` na simulátor platieb namiesto do SporoPay. Nič iné sa nemení: podpisy, návrat aj `completePurchase()` fungujú rovnako.
+So zapnutým `testMode` presmeruje `purchase()` na simulátor platieb namiesto do SporoPay a prijme aj návratovú URL (`rurl`) s obyčajným `http://`, pre e-shop bežiaci na `localhost`; produkcia vyžaduje `https://`. Nič iné sa nemení: podpisy, návrat aj `completePurchase()` fungujú rovnako.
 
 | Režim | `PurchaseRequest::getEndpoint()` |
 |---|---|

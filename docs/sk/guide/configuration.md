@@ -44,18 +44,18 @@ Predvolený `sharedSecret` brány je prázdny reťazec. Od verzie 4.0 každé `p
 
 | Parameter | Setter | Posiela sa ako | Povinný | Popis |
 |---|---|---|---|---|
-| `accountNumberPrefix` | `setAccountNumberPrefix()` | `pu_predcislo` | áno | Predčíslie vášho účtu v Slovenskej sporiteľni (`000000`, ak ho účet nemá). |
-| `accountNumber` | `setAccountNumber()` | `pu_cislo` | áno | Číslo vášho účtu. |
+| `accountNumberPrefix` | `setAccountNumberPrefix()` | `pu_predcislo` | áno | Predčíslie vášho účtu v Slovenskej sporiteľni (`000000`, ak ho účet nemá), 1 až 6 číslic (kontroluje sa). |
+| `accountNumber` | `setAccountNumber()` | `pu_cislo` | áno | Číslo vášho účtu, 1 až 10 číslic (kontroluje sa; bez pomlčiek, medzier a kódu banky). |
 | | | `pu_kbanky` | | Vždy `0900`, kód banky Slovenskej sporiteľne (`PurchaseRequest::BANK_CODE`). |
 | `amount` | `setAmount()` | `suma` | áno | Suma v eurách. Omnipay ju formátuje na dve desatinné miesta: `'10'`, `10` aj `'10.0'` sa pošlú ako `10.00`; viac ako dve desatinné miesta vyhodia `InvalidRequestException('Amount precision is too high for currency.')`, záporná suma `'A negative amount is not allowed.'`. Pozrite [príklad Formáty sumy](../examples/amount-formats). |
 | | | `mena` | | Vždy `EUR` (`PurchaseRequest::CURRENCY`). |
-| `vs` | `setVs()` | `vs` | áno | Variabilný symbol: identifikuje objednávku, najviac 10 číslic. Použite hodnotu jedinečnú pre každú objednávku. |
-| `ss` | `setSs()` | `ss` | áno | Špecifický symbol, najviac 10 číslic. |
-| `rurl` | `setRurl()` | `url` | áno | Návratová URL: kam banka pošle zákazníka späť s výsledkom. |
-| `param` | `setParam()` | `param` | áno | Voľný text, ktorý sa vám vráti nezmenený a je podpísaný v oboch smeroch, napríklad `order=2024000123`. |
+| `vs` | `setVs()` | `vs` | áno | Variabilný symbol: identifikuje objednávku, len číslice, najviac 10 (kontroluje sa). Použite hodnotu jedinečnú pre každú objednávku. |
+| `ss` | `setSs()` | `ss` | áno | Špecifický symbol, len číslice, najviac 10 (kontroluje sa). |
+| `rurl` | `setRurl()` | `url` | áno | Návratová URL: kam banka pošle zákazníka späť s výsledkom. Absolútna `https://` URL (kontroluje sa); `http://` sa prijme len v testovacom režime. |
+| `param` | `setParam()` | `param` | áno | Voľný text, ktorý sa vám vráti nezmenený a je podpísaný v oboch smeroch, napríklad `order=2024000123`. Nesmie obsahovať riadiace znaky ani `;` (kontroluje sa). |
 | `sharedSecret`, `testMode`, `testHost` | | | | Zdedené z brány, pre jednotlivú požiadavku ich môžete prepísať. |
 
-Všetky polia sú súčasťou `sign1`, pozrite [Podpisy](./signatures). Keď je povinný parameter `null`, `purchase()` vyhodí `InvalidRequestException` s názvom **posielaného** poľa: `The pu_predcislo parameter is required`, `The pu_cislo parameter is required`, `The vs parameter is required`, `The ss parameter is required`, `The rurl parameter is required`, `The param parameter is required`, `The amount parameter is required`.
+Všetky polia sú súčasťou `sign1`, pozrite [Podpisy](./signatures). Keď je povinný parameter `null`, `purchase()` vyhodí `InvalidRequestException` s názvom **posielaného** poľa: `The pu_predcislo parameter is required`, `The pu_cislo parameter is required`, `The vs parameter is required`, `The ss parameter is required`, `The rurl parameter is required`, `The param parameter is required`, `The amount parameter is required`. Chybný formát vyhodí výnimku skôr, než sa čokoľvek podpíše: `The pu_predcislo parameter must be up to 6 digits`, `The pu_cislo parameter must be up to 10 digits`, `The vs parameter must be up to 10 digits` (alebo `ss`), `The rurl parameter must be an absolute https:// URL` (v testovacom režime `... https:// or http:// URL`), `The param parameter must not contain control characters`.
 
 Mena nie je parameter: SporoPay platí v eurách. Všeobecné parametre požiadavky v Omnipay (`currency`, `description`, `transactionId`, `returnUrl`, ...) brána prijme, ale banke ich neposiela; na návratovú URL použite `rurl`.
 
