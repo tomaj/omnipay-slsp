@@ -8,6 +8,12 @@ omnipay-slsp podpisuje vaše platobné požiadavky a overuje návraty z banky. T
 - Prázdny kľúč alebo kľúč, ktorý sa nedekóduje na 16 alebo 24 bajtov, brána odmietne: `purchase()` aj `completePurchase()` vyhodia `Exception\InvalidArgumentException` namiesto toho, aby podpisovali kľúčom, ktorý OpenSSL doplní nulovými bajtmi (z prázdneho kľúča by bol samé nuly, ktoré vie vypočítať ktokoľvek). Konfiguráciu aj tak skontrolujte pri štarte aplikácie, aby chýbajúci kľúč zastavil nasadenie, a nie až prvú platbu.
 - Kľúč simulátora (`Z3qY08EpvLlAAoMZdnyUdQ==`) je verejný. Používajte ho len v testovacom režime.
 
+### Výpisy zásobníka {#stack-traces}
+
+Chybové hlásenia (Tracy, Sentry, Monolog, `getTraceAsString()`) ukazujú argumenty každého volania na zásobníku. Parametre, ktoré preberajú kľúč, sú označené atribútom `#[\SensitiveParameter]`, takže PHP namiesto kľúča vypíše `Object(SensitiveParameterValue)`: `setSharedSecret()` v triedach `Gateway`, `PurchaseRequest` a `CompletePurchaseRequest` a `Des3Sign::sign()` (ktorá pri prázdnom alebo chybnom kľúči vyhodí výnimku, kým je kľúč na zásobníku).
+
+Na polia sa to nevzťahuje: kľúč odovzdaný cez `initialize(['sharedSecret' => ...])` alebo `purchase(['sharedSecret' => ...])` sa vypíše spolu s poľom. Nastavte ho cez `setSharedSecret()` a v produkcii vypnite argumenty vo výpisoch nastavením `zend.exception_ignore_args=On` v `php.ini` (predvolená hodnota v `php.ini-production`).
+
 ## Čo `completePurchase()` zaručuje {#what-completepurchase-guarantees}
 
 Keď skončí bez výnimky:
